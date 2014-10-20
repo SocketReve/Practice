@@ -1,7 +1,7 @@
 package JSONModelling;
 
 /**
- * Created by socketreve on 19/10/14.
+ * Created by Luca Reverberi (thereve@gmail.com) on 19/10/14.
  */
 
 

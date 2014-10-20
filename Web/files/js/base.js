@@ -1,4 +1,4 @@
 (function() {
-	// Luca Reverberi - SocketReve - luca.reverberi@socketreve.net
+	// Luca Reverberi - SocketReve - thereve@gmail.com
 	angular.module("PracticeSimulator", [ "ui.bootstrap", "angular-loading-bar"]);
 })();

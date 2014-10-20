@@ -1,7 +1,7 @@
 package RestService;
 
 /**
- * Created by socketreve on 13/10/14.
+ * Created by Luca Reverberi (thereve@gmail.com) on 13/10/14.
  */
 
 import org.apache.logging.log4j.LogManager;
