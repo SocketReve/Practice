@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<!-- Luca Reverberi - SocketReve - luca.reverberi@studenti.unimi.it -->
+
+<html ng-app="PracticeSimulator">
+	<head>
+		<link href="files/css/vendor/bootstrap-theme2.min.css" rel="stylesheet">
+		<link href="files/css/vendor/loading-bar.min.css" rel="stylesheet">
+		<link href="files/compiled/base.min.css" rel="stylesheet">
+		<link href="files/images/icon2.png" rel="shortcut icon" type="image/x-icon" />
+		<title> Practice Network Simulator </title>
+	</head>
+	<body>
+		<div id="main" ng-controller="NetworkSimulator">
+			<div class="text-center page-header">
+				<h1><span tooltip-placement="left" tooltip="{{ statoBackend }}" id="backendConnectionStyle" ng-class="backendConnectionStyle" class="glyphicon glyphicon-cloud"></span> PRACTICE <small>Network Simulator</small></h1>
+				<img src="files/images/eu_flag.jpg" class="hidden-xs"></img>
+			</div>
+
+			<div ng-click="showParameters()" id="parametersStart">
+				>
+			</div>
+			<div id="parameters" class="col-lg-3 col-md-3 col-sm-6 col-xs-10">
+				<div class="text-center title">
+					Add Node
+					<button type="button" ng-click="hideParameters()" class="close"><span aria-hidden="true">&times;</span></button>
+				</div>
+
+				<form ng-submit="addNode()" class="form-horizontal" role="form">
+					<h4> Info </h4>
+
+					<div class="form-group">
+						<label for="nameInput" class="control-label col-lg-2 col-md-2"> Name: </label>
+
+						<div class="col-lg-10">
+							<input required ng-model="nameNew" type="text" class="form-control" id="nameInput" placeholder="Name">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="descrizioneInput" class="control-label col-lg-2 col-md-2"> Descr: </label>
+
+						<div class="col-lg-10">
+							<input required ng-model="descrizioneNew" type="text" class="form-control" id="descrizioneInput" placeholder="Descrizione del nodo">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="memInput" class="control-label col-lg-2 col-md-2"> Mem: </label>
+
+						<div class="col-lg-10">
+							<input required ng-model="memNew" type="number" class="form-control" id="memInput" placeholder="Memoria del nodo istante 0">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="riskInput" class="control-label col-lg-2 col-md-2"> Risk: </label>
+
+						<div class="col-lg-10">
+							<input required ng-model="riskNew" type="number" step="0.1" class="form-control" id="riskInput" placeholder="Risk">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
+							<div class="dropdown">
+								<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+									{{ nodeTypeNew }}
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" role="menu">
+									<li role="presentation" class="dropdown-header">Node Type</li>
+									<li role="presentation" class="divider"></li>
+									<li role="presentation"><a ng-click="nodeTypeNew='IN'; nodeFunctionNew = null" role="menuitem" href="#">IN</a></li>
+									<li role="presentation"><a ng-click="nodeTypeNew='COMP'; nodeFunctionNew = 'SUM' " role="menuitem" href="#">COMP</a></li>
+									<li role="presentation"><a ng-click="nodeTypeNew='RES'; nodeFunctionNew = null " role="menuitem" href="#">RES</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<div ng-show="(nodeTypeNew == 'COMP')" class="form-group">
+						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
+							<div class="dropdown">
+								<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+									{{ nodeFunctionNew }}
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" role="menu">
+									<li role="presentation" class="dropdown-header">Node Function</li>
+									<li role="presentation" class="divider"></li>
+									<li role="presentation"><a ng-click="nodeFunctionNew='SUM'" role="menuitem" href="#">SUM</a></li>
+									<li role="presentation"><a ng-click="nodeFunctionNew='SUB'" role="menuitem" href="#">SUB</a></li>
+									<li role="presentation"><a ng-click="nodeFunctionNew='MIN'" role="menuitem" href="#">MIN</a></li>
+									<li role="presentation"><a ng-click="nodeFunctionNew='MAX'" role="menuitem" href="#">MAX</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<h4> Provider </h4>
+					<div class="form-group">
+						<label for="providerNodeNew" class="control-label col-lg-2 col-md-2"> Provider: </label>
+						<div class="col-lg-10">
+							<input required ng-model="providerNodeNew" type="text" class="form-control" id="providerNodeNew" placeholder="Name">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
+							<button type="submit" class="btn btn-block btn-primary">Add Node</button>
+						</div>
+					</div>
+
+				</form>
+				<br>
+
+				<div class="text-center title"> Add Communication </div>
+
+				<br>
+				<form ng-submit="addCommunication()" class="form-horizontal" role="form">
+
+					<div class="form-group">
+						<label for="fromInput" class="control-label col-lg-2 col-md-2"> From: </label>
+						<div class="col-lg-10">
+							<input required ng-model="fromNew" type="text" class="form-control" id="fromInput" placeholder="From">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="toInput" class="control-label col-lg-2 col-md-2"> To: </label>
+						<div class="col-lg-10">
+							<input required ng-model="toNew" type="text" class="form-control" id="toInput" placeholder="To">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
+							<button type="submit" class="btn btn-block btn-primary">Add Communication</button>
+						</div>
+					</div>
+
+				</form>
+				<br>
+
+				<div class="text-center title"> Remove Node </div>
+
+				<br>
+				<form ng-submit="removeNode()" class="form-horizontal" role="form">
+
+					<div class="form-group">
+						<label for="removeID" class="control-label col-lg-2 col-md-2"> Name: </label>
+						<div class="col-lg-10">
+							<input required ng-model="removeNodeName" type="text" class="form-control" id="removeID" placeholder="ID">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
+							<button type="submit" class="btn btn-block btn-primary">Remove</button>
+						</div>
+					</div>
+				</form>
+				<br>
+
+				<div class="text-center title"> Remove Communication </div>
+
+				<br>
+				<form ng-submit="removeEdge()" class="form-horizontal" role="form">
+
+					<div class="form-group">
+						<label for="removeCom" class="control-label col-lg-2 col-md-2"> Name: </label>
+						<div class="col-lg-10">
+							<input required ng-model="removeComName" type="text" class="form-control" id="removeCom" placeholder="ID">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
+							<button type="submit" class="btn btn-block btn-primary">Remove</button>
+						</div>
+					</div>
+				</form>
+
+			</div>
+			<div id="graphContainer" ng-click="hideParameters() && hideModifier()">
+				<div id="runSimulation">
+					<button type="button" ng-click="runSimulation()" ng-hide="simulationRunning" class="btn btn-block btn-default"> Run Simulation </button>
+					<div ng-show="simulationRunning" class="spinner">
+						<div class="bounce1"></div>
+						<div class="bounce2"></div>
+						<div class="bounce3"></div>
+					</div>
+				</div>
+
+				<div id="network" >
+					<svg>
+						<g transform="translate(20,20)">
+							<g>
+								<!-- svg models for IN, COMP, RES actors -->
+								<!--<defs>
+									<g id="def-N0"><rect x=-25 y =-25 width=50 height=50 style="fill:steelblue;"/><circle cx=0 cy=0 r=20 fill="yellow"/><text x=-7 y=5 fill="#000">N0</text></g>
+									<g id="def-N1" transform="translate(-40,-20)"><polygon points="0,20 20,0 35,0 35,10, 20,10, 20,20 60,20 60,10 45,10 45,0 60,0 80,20 60,50 40,35 20,50" style="fill:lightgreen;stroke:black;stroke-width:2px;"/><text x=35 y=33 fill="#fff">N1</text></g>
+									<g id="def-N2" ><ellipse cx=0 cy=0 rx=50 ry=30 fill="#ffc0c0"/><text x=-7 y=5 fill="#fff">N2</text></g>
+									<g id="def-N3" transform="translate(-40,-20)"><polygon points="0,20 20,0 35,0 35,10, 20,10, 20,20 60,20 60,10 45,10 45,0 60,0 80,20 60,50 40,35 20,50" style="fill:lightgray;stroke:black;stroke-width:2px;"/><text x=35 y=33 fill="#fff">N3</text></g>
+									<g id="def-N4" ><circle cx=0 cy=0 r=30 fill="#f0b3ff"/><text x=-7 y=5 fill="#fff">N4</text></g>
+									<g id="def-N5" transform="translate(-98,-98)"><polygon points= "100,10 40,198 190,78 10,78 160,198" fill-rule="evenodd" style="fill:silver;"/></g>
+									<g id="COMP">
+										<rect x=-25 y =-25 width=50 height=50>
+
+										</rect>
+									</g>-->
+								</defs>
+							</g>
+						</g>
+					</svg>
+				</div>
+
+				<div id="restartVisualizer">
+					<button type="button" ng-click="restartVisualizer()" class="btn btn-block btn-default"> Reset View </button>
+				</div>
+				<div id="modifier" class="hide">
+					<div class="title">
+						&nbsp&nbspModifier
+						<button type="button" ng-click="hideModifier()" class="close"><span aria-hidden="true">&times;</span></button>
+					</div>
+					<br>
+					<div ng-show="modifierIsNode" class="col-lg-2 col-md-2 col-lg-offset-1 col-md-offset-1">
+						<div class="input-group">
+							<span class="input-group-addon"> Name </span>
+							<input required ng-model="nodeNameModifier" type="text" class="form-control" placeholder="Name">
+						</div>
+						<br>
+						<div class="input-group">
+							<span class="input-group-addon"> Description </span>
+							<input required ng-model="nodeDescriptionModifier" type="text" class="form-control" placeholder="Description">
+						</div>
+					</div>
+					<div ng-show="modifierIsEdge" class="col-lg-2 col-md-2 col-lg-offset-1 col-md-offset-1">
+						<div class="input-group">
+							<span class="input-group-addon"> From </span>
+							<input required ng-model="nodeFromModifier" type="text" class="form-control" placeholder="Orientation Edge From">
+						</div>
+						<br>
+						<div class="input-group">
+							<span class="input-group-addon"> To </span>
+							<input required ng-model="nodeToModifier" type="text" class="form-control" placeholder="Orientation Edge To">
+						</div>
+					</div>
+					<div ng-show="modifierIsNode && nodeTypeModifier !== undefined " class="col-lg-2 col-md-2">
+						<div class="dropdown">
+							<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+								{{ nodeTypeModifier }}
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" role="menu">
+								<li role="presentation"><a ng-click="nodeTypeModifier='IN'" role="menuitem" href="#">IN</a></li>
+								<li role="presentation"><a ng-click="nodeTypeModifier='COMP'" role="menuitem" href="#">COMP</a></li>
+								<li role="presentation"><a ng-click="nodeTypeModifier='RES'" role="menuitem" href="#">RES</a></li>
+							</ul>
+						</div>
+						<br>
+						<div class="input-group">
+							<span class="input-group-addon"> Group </span>
+							<input required ng-model="nodeGroupModifier" type="text" class="form-control" placeholder="Node Group">
+						</div>
+					</div>
+					<div ng-show="modifierIsNode && nodeMemModifier !== undefined" class="col-lg-2 col-md-2">
+						<div class="input-group">
+							<span class="input-group-addon"> Mem </span>
+							<input required ng-model="nodeMemModifier" type="text" class="form-control" placeholder="Node Group">
+						</div>
+					</div>
+				</div>
+			</div>
+			<alert ng-show="alert" class="text-center" type="danger" close="(alert = false)">{{ alertMessage }}</alert>
+		</div>
+
+
+		<script type="text/javascript" src="files/js/vendor/d3.min.js"></script>
+		<script type="text/javascript" src="files/js/vendor/dagre-d3.min.js"></script>
+		<script type="text/javascript" src="files/js/vendor/angular.min.js"></script>
+		<script type="text/javascript" src="files/js/vendor/angular-animate.min.js"></script>
+		<script type="text/javascript" src="files/js/vendor/bootstrap.js"></script>
+		<script type="text/javascript" src="files/js/vendor/loading-bar.min.js"></script>
+
+		<!-- main -->
+		<script type="text/javascript" src="files/compiled/base.min.js"></script>
+
+		<!-- angular resources -->
+		<script type="text/javascript" src="files/compiled/angular-resource.min.js"></script>
+	</body>
+</html>
