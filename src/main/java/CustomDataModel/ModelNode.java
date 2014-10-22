@@ -1,11 +1,10 @@
-package JSONModelling;
+package CustomDataModel;
 
 /**
  * Created by Luca Reverberi (thereve@gmail.com) on 19/10/14.
  */
 
-
-public class JSONModelNode {
+public class ModelNode {
 	public String id;
 	public Value value;
 

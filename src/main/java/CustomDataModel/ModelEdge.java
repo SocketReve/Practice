@@ -1,9 +1,10 @@
-package JSONModelling;
+package CustomDataModel;
 
 /**
  * Created by Luca Reverberi (thereve@gmail.com) on 19/10/14.
  */
-public class JSONModelEdge {
+
+public class ModelEdge {
 	public String u;
 	public String v;
 	public int id;

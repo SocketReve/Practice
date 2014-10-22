@@ -4,7 +4,8 @@ package RestService;
  * Created by Luca Reverberi (thereve@gmail.com) on 13/10/14.
  */
 
-import JSONModelling.JSONModel;
+import JSONModelling.UploadNetworkModel;
+import Simulation.Simulation;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.restlet.representation.Representation;
@@ -17,25 +18,10 @@ public class RestNetworkUpload extends ServerResource {
 		Gson gson = new Gson();
 
 		try {
-			//json = new JSONObject(entity.getText());
-			JSONModel obj = gson.fromJson(entity.getText(), JSONModel.class);
-
-			for(int i = 0; i < obj.nodes.length; i++) {
-				System.out.println(obj.nodes[i].id);
-				System.out.println(obj.nodes[i].value.descr);
-				System.out.println(obj.nodes[i].value.mem);
-				System.out.println(obj.nodes[i].value.provider);
-				System.out.println(obj.nodes[i].value.risk);
-				System.out.println(obj.nodes[i].value.type);
-				//System.out.println(obj.nodes[i].id);
-				//System.out.println(obj.nodes[i].id);
-			}
-
-			for(int i = 0; i < obj.edges.length; i++) {
-				System.out.println(obj.edges[i].id);
-			}
-
 			RestHandler.log.info("Received JSON from "+getClientInfo().getAddress());
+			UploadNetworkModel obj = gson.fromJson(entity.getText(), UploadNetworkModel.class);
+			Simulation sim = new Simulation(obj.nodes, obj.edges);
+			return gson.toJson(sim.riskByProvider());
 		}
 		catch (Exception e) {
 			RestHandler.log.info("Received wrong data from "+getClientInfo().getAddress());
@@ -45,11 +31,11 @@ public class RestNetworkUpload extends ServerResource {
 			return status.toString();
 		}
 
-		// faccio qualcosa
+		/*// faccio qualcosa
 		Thread.sleep(5000);
 
 		JsonObject status = new JsonObject();
 		status.addProperty("status","ok");
-		return status.toString();
+		return status.toString();*/
 	}
 }

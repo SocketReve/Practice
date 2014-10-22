@@ -1,4 +1,4 @@
-angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $window) {
+angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $window, $sanitize) {
 	var g,
 		renderer,
 		zoom,
@@ -58,12 +58,12 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			// init nodes
 			for(var i = 0; i < nodes.length; i++) {
 				var htmlTemplate =	"<div class='customNode'>";
-						htmlTemplate +=	"<span class='type "+ nodes[i].type +"'> </span>";
-						htmlTemplate +=	"<span class='name'>"+ camelCase(nodes[i].id) +"</span>";
-						htmlTemplate +=	"<span class='description'>"+ nodes[i].descr +"</span>";
-						htmlTemplate +=	"<span class='provider'> "+ nodes[i].provider.toUpperCase() +"</span>";
-						htmlTemplate +=	"<span class='mem'>"+ nodes[i].mem + ((nodes[i].type == "COMP") ? (" | " + nodes[i].func) : '' )+"</span>";
-						htmlTemplate +=	"<span class='risk'>"+ nodes[i].risk +"</span>";
+						htmlTemplate +=	"<span class='type "+ $sanitize(nodes[i].type) +"'> </span>";
+						htmlTemplate +=	"<span class='name'>"+ camelCase($sanitize(nodes[i].id)) +"</span>";
+						htmlTemplate +=	"<span class='description'>"+ $sanitize(nodes[i].descr) +"</span>";
+						htmlTemplate +=	"<span class='provider'> "+ $sanitize(nodes[i].provider.toUpperCase()) +"</span>";
+						htmlTemplate +=	"<span class='mem'>"+ $sanitize(nodes[i].mem) + ((nodes[i].type == "COMP") ? (" | " + $sanitize(nodes[i].func)) : '' )+"</span>";
+						htmlTemplate +=	"<span class='risk'>"+ $sanitize(nodes[i].risk) +"</span>";
 					htmlTemplate +=	"</div>";
 
 				g.addNode(camelCase(nodes[i].id.trim()), {
@@ -71,7 +71,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 					label: htmlTemplate,
 					descr: nodes[i].descr,
 					type: nodes[i].type,
-					provider: nodes[i].provider,
+					provider: nodes[i].provider.toUpperCase(),
 					mem: parseInt(nodes[i].mem),
 					risk: parseFloat(nodes[i].risk)
 				});
@@ -114,13 +114,13 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 	Graph.addNode = function(id, description, type, provider, mem, risk, func) {
 		try {
 			var htmlTemplate =	"<div class='customNode'>";
-					htmlTemplate +=	"<span class='type "+ type +"'> </span>";
-					htmlTemplate +=	"<span class='name'>"+ camelCase(id) +"</span>";
-					htmlTemplate +=	"<span class='description'>"+ description +"</span>";
-					htmlTemplate +=	"<span class='provider'>"+ provider.toUpperCase() +"</span>";
+					htmlTemplate +=	"<span class='type "+ $sanitize(type) +"'> </span>";
+					htmlTemplate +=	"<span class='name'>"+ camelCase($sanitize(id)) +"</span>";
+					htmlTemplate +=	"<span class='description'>"+ $sanitize(description) +"</span>";
+					htmlTemplate +=	"<span class='provider'>"+ $sanitize(provider.toUpperCase()) +"</span>";
 					// I KNOW! -- SORRY :D
-					htmlTemplate +=	"<span class='mem'>"+ mem + ((type == "COMP") ? (" | " + func) : '' )+"</span>";
-					htmlTemplate +=	"<span class='risk'>"+ risk +"</span>";
+					htmlTemplate +=	"<span class='mem'>"+ $sanitize(mem)+ ((type == "COMP") ? (" | " + $sanitize(func)) : '' )+"</span>";
+					htmlTemplate +=	"<span class='risk'>"+ $sanitize(risk) +"</span>";
 				htmlTemplate +=	"</div>";
 
 			g.addNode(camelCase(id.trim()), {
@@ -128,13 +128,13 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 				label: htmlTemplate,
 				descr: description,
 				type: type,
-				provider: provider,
+				provider: provider.toUpperCase(),
 				mem: parseInt(mem),
 				risk: parseFloat(risk),
 				func: func
 			});
 		} catch(err) {
-			throw "Node already in graph";
+			throw "Node already in graph or input not valid";
 		}
 
 		this.redesign();
@@ -150,7 +150,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			});
 			edgesCount++;
 		} catch(err) {
-			throw "Edge is already in the graph";
+			throw "Edge is already in the graph or input not valid";
 		}
 
 		this.redesign();
@@ -163,7 +163,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		try {
 			g.delNode(id);
 		} catch(err) {
-			throw "Node not exists";
+			throw "Node not exists or input not valid";
 		}
 		this.redesign();
 		$timeout(function(){
@@ -192,7 +192,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 	};
 
 	Graph.getElementsJSON = function() {
-		// delete useless information
+		// delete useless information for simulation
 		var object = dagreD3.json.encode(g);
 
 		for(var i = 0; i < object.nodes.length; i++) {

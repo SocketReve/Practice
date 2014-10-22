@@ -29,7 +29,7 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 		type: "COMP",
 		provider: "aruba",
 		mem: "1",
-		risk: "0.2",
+		risk: "0.5",
 		func: "SUM"
 	},
 	{
@@ -38,7 +38,7 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 		type: "COMP",
 		provider: "AWS",
 		mem: "1",
-		risk: "0.2",
+		risk: "0.6",
 		func: "SUM"
 	},
 	{
@@ -47,7 +47,7 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 		type: "RES",
 		provider: "telecom",
 		mem: "1",
-		risk: "0.2"
+		risk: "0.7"
 	},
 	{
 		id: "nodo4",
@@ -55,7 +55,7 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 		type: "IN",
 		provider: "telecom",
 		mem: "1",
-		risk: "0.2"
+		risk: "0.9"
 	}];
 
 	var edges = [
@@ -136,7 +136,7 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 				$scope.descrizioneNew = "";
 				$scope.providerNodeNew = "";
 				$scope.memNew = 0;
-				$scope.riskNew = 0.0;
+				$scope.riskNew = 0.1;
 			}
 			catch(err) {
 				customAlert(err);
@@ -217,8 +217,9 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 	// at url "/upload"
 	$scope.runSimulation = function() {
 		$scope.simulationRunning = true;
-		$http.post("/uploadNetwork", Graph2.getElementsJSON()).success(function(){
+		$http.post("/uploadNetwork", Graph2.getElementsJSON()).success(function(data){
 			$scope.simulationRunning = false;
+			console.log(data);
 		}).error(function(){
 			$scope.simulationRunning = false;
 		});
@@ -228,7 +229,7 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 	// set interval for know if backend is online
 	$interval(function() {
 		checkBackendConnection()
-	}, 4000);
+	}, 3000);
 
 	// check if backend is online request("ping"), response("pong")
 	function checkBackendConnection() {
