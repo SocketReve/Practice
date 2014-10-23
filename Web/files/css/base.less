@@ -2,6 +2,7 @@ html,body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
+	font-family: "Helvetica Neue" !important;
 }
 
 @green: #17cf00;
@@ -41,9 +42,7 @@ html,body {
 			#backendConnectionStyle {
 				top: 10px;
 				padding-right: 10px;
-				&.green {
-					color: @green;
-				}
+				color: @green;
 			}
 		}
 
@@ -143,7 +142,7 @@ html,body {
 				overflow: hidden;
 
 				.customNode {
-					@nodeHeight: 95px;
+					@nodeHeight: 90px;
 					@nodeWidth: 200px;
 
 					line-height: normal;
@@ -160,6 +159,7 @@ html,body {
 						height: 100%;
 						width: 15px;
 						border-right: 1px solid #bbb;
+						padding-top: 3px;
 
 						&.COMP {
 							background-color: @colorCOMP;

@@ -1,10 +1,10 @@
 package Simulation;
 
-import CustomDataModel.ModelEdge;
-import CustomDataModel.ModelNode;
-import CustomDataModel.Subset;
+import CustomDataModel.EdgeModel;
+import CustomDataModel.NodeModel;
 import CustomDataModel.PowerSet;
-import JSONModelling.ResponseRiskByProvider;
+import JSONModelling.ProvidersRiskReponse;
+import JSONModelling.SubsetsRiskResponse;
 
 import java.util.*;
 
@@ -13,83 +13,105 @@ import java.util.*;
  */
 
 public class Simulation {
-	private ModelNode[] nodes;
-	private ModelEdge[] edges;
+	private NodeModel[] nodes;
+	private EdgeModel[] edges;
 
-	// for every subset, i create a new class that contains many info about this subset
-	private List<Subset> nodeSubsetsGenerics;
-
-	// list of node that contains info group by provider
-	private Map<String, Subset> nodeSubsetsByProvider;
-
-	public Simulation(ModelNode[] nodes, ModelEdge[] edges) {
+	public Simulation(NodeModel[] nodes, EdgeModel[] edges) {
 		// conversion from array to list
 		this.nodes = nodes;
 		this.edges = edges;
-		this.nodeSubsetsGenerics = new ArrayList<Subset>();
+		//this.nodeSubsetsGenerics = new ArrayList<Subset>();
 		// group by provider with map
-		this.nodeSubsetsByProvider = new HashMap<String, Subset>();
+
 
 		// createPowerSet create a new powerset of node [a], [a,b], [a,b,c] and at the same time
 		// generates in nodeSubsetsGenerics a group of subnet generated before by createPowerSet
 		// with some parameters in class Subset like 'risk'
-		this.createPowerSet();
+		// this.createPowerSet();
 		this.createGroupByProvider();
 	}
 
-	private void createPowerSet() {
-		// create normal set of nodes
-		Set<ModelNode> nodeSet = new HashSet<ModelNode>();
+	public List<ProvidersRiskReponse> getRiskByProvider() {
+		List<ProvidersRiskReponse> listOfProviderNodeRisk = new ArrayList<ProvidersRiskReponse>();
 
-		for(ModelNode node : this.nodes) {
-			nodeSet.add(node);
-		}
+		// list of node that contains info group by provider
+		Map<String, Set<NodeModel>> nodeSubsetsByProvider;
+		nodeSubsetsByProvider = new HashMap<String, Set<NodeModel>>();
 
-		// create power set of edges and nodes
-		Set<Set<ModelNode>> nodePowerSet = PowerSet.powerSet(nodeSet);
-
-		this.createSubsetsOfPowerSet(nodePowerSet);
-	}
-
-	private void createSubsetsOfPowerSet(Set<Set<ModelNode>> nodePowerSet) {
-		// for every subset, add the subset in a new subset with every information we needs
-		for(Set<ModelNode> nodesSub : nodePowerSet) {
-			if(!nodesSub.isEmpty()) { // first element of power set is empty and I don't want this
-				nodeSubsetsGenerics.add(new Subset(nodesSub));
-			}
-		}
-	}
-
-	private void createGroupByProvider() {
-		for(ModelNode node : this.nodes) {
+		for(NodeModel node : this.nodes) {
 			if(nodeSubsetsByProvider.containsKey(node.value.provider)) {
-				nodeSubsetsByProvider.get(node.value.provider).addElement(node);
+				nodeSubsetsByProvider.get(node.value.provider).add(node);
+				System.out.println("sono qui");
 			}
 			else {
 				// create a new subset for a new provider
-				Set<ModelNode> newNodeSubsetByProvider = new HashSet<ModelNode>();
+				Set<NodeModel> newNodeSubsetByProvider = new HashSet<NodeModel>();
 				newNodeSubsetByProvider.add(node);
-				nodeSubsetsByProvider.put(node.value.provider, new Subset(newNodeSubsetByProvider));
+				nodeSubsetsByProvider.put(node.value.provider, newNodeSubsetByProvider);
 			}
 		}
-	}
-
-	public List<ResponseRiskByProvider> riskByProvider() {
-		List<ResponseRiskByProvider> listOfProviderNodeRisk = new ArrayList<ResponseRiskByProvider>();
 
 		// convert hashmap in list of ResponseRiskByProvider
-		for (Map.Entry<String, Subset> e : nodeSubsetsByProvider.entrySet()) {
-			ResponseRiskByProvider newGroup = new ResponseRiskByProvider();
+		for (Map.Entry<String, Set<NodeModel>> e : nodeSubsetsByProvider.entrySet()) {
+			ProvidersRiskReponse newGroup = new ProvidersRiskReponse();
 			newGroup.providerName = e.getKey();
-			newGroup.nodes = e.getValue().getElementsName();
-			newGroup.risk = e.getValue().getRisk();
+			newGroup.nodes = e.getValue();
+			// calcolate risk
+			for(NodeModel node : e.getValue()) {
+				newGroup.risk = newGroup.risk * node.value.risk;
+			}
 			listOfProviderNodeRisk.add(newGroup);
 		}
 
 		return listOfProviderNodeRisk;
 	}
 
-	private void printRiskBySubset() {
+	public List<SubsetsRiskResponse> getSubsetsRisk() {
+		Set<Set<NodeModel>> nodePowerSet = this.createPowerSet();
+		List<SubsetsRiskResponse> nodesSubsets = new ArrayList<SubsetsRiskResponse>();
+
+		for(Set<NodeModel> nodesSub : nodePowerSet) {
+			if(!nodesSub.isEmpty()) { // first element of power set is empty and I don't want this
+				SubsetsRiskResponse subset = new SubsetsRiskResponse();
+
+				// add nodes in response <set>
+				subset.nodes = nodesSub;
+
+				// calcolate risk
+				for(NodeModel node : nodesSub) {
+					subset.risk = subset.risk * node.value.risk;
+				}
+				nodesSubsets.add(subset);
+			}
+		}
+		return nodesSubsets;
+	}
+
+	private Set<Set<NodeModel>> createPowerSet() {
+		// create normal set of nodes
+		Set<NodeModel> nodeSet = new HashSet<NodeModel>();
+
+		for(NodeModel node : this.nodes) {
+			nodeSet.add(node);
+		}
+
+		// create power set of edges and nodes
+		Set<Set<NodeModel>> nodePowerSet = PowerSet.powerSet(nodeSet);
+
+		//this.createSubsetsOfPowerSet(nodePowerSet);
+		return nodePowerSet;
+	}
+
+/*	private void createSubsetsOfPowerSet(Set<Set<ModelNode>> nodePowerSet) {
+		// for every subset, add the subset in a new subset with every information we needs
+		for(Set<ModelNode> nodesSub : nodePowerSet) {
+			if(!nodesSub.isEmpty()) { // first element of power set is empty and I don't want this
+				nodeSubsetsGenerics.add(new Subset(nodesSub));
+			}
+		}
+	}*/
+
+	private void createGroupByProvider() {
 
 	}
 }

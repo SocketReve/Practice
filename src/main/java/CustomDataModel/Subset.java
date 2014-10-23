@@ -8,14 +8,14 @@ import java.util.Set;
  */
 
 public class Subset {
-	private Set<ModelNode> nodesInSubset;
+	private Set<NodeModel> nodesInSubset;
 	private float risk = 1;
 
-	public Subset(Set<ModelNode> nodes) {
+	public Subset(Set<NodeModel> nodes) {
 		nodesInSubset = nodes;
 
 		// calculate risk
-		for(ModelNode node : nodesInSubset) {
+		for(NodeModel node : nodesInSubset) {
 			risk = risk * node.value.risk;
 		}
 	}
@@ -23,13 +23,13 @@ public class Subset {
 	public Set<String> getElementsName() {
 		Set<String> nodesName = new HashSet<String>();
 
-		for(ModelNode e : nodesInSubset) {
+		for(NodeModel e : nodesInSubset) {
 			nodesName.add(e.id);
 		}
 		return nodesName;
 	}
 
-	public void addElement(ModelNode node) {
+	public void addElement(NodeModel node) {
 		this.nodesInSubset.add(node);
 	}
 

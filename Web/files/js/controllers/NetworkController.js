@@ -1,10 +1,11 @@
-angular.module("PracticeSimulator").controller("NetworkSimulator", function($scope, $interval, $timeout, $http, Graph2){
+angular.module("PracticeSimulator").controller("NetworkSimulator", function($scope, $interval, $timeout, $http, Graph2, Practice){
 	// init
 	$scope.nameNew = "";
 	$scope.descrizioneNew = "";
 	$scope.fromNew = "";
 	$scope.toNew = "";
 	$scope.memNew = 0;
+	$scope.timeNew = 0;
 	$scope.riskNew = 0.1;
 	$scope.groupOfNodeNew = "";
 	$scope.removeNodeName = "";
@@ -21,63 +22,54 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 	$scope.statoBackend = "Backend Down";
 	$scope.alert = false;
 
-	checkBackendConnection();
+	//checkBackendConnection();
 
 	var nodes = [{
 		id: "nodo1",
-		descr: "nodo presso aruba networks - web server",
-		type: "COMP",
+		descr: "nodo presso aruba networks ",
+		type: "IN",
 		provider: "aruba",
 		mem: "1",
-		risk: "0.5",
-		func: "SUM"
+		risk: "0.5"
 	},
 	{
 		id: "nodo2",
-		descr: "nodo presso aws ec2 - load balancing",
-		type: "COMP",
+		descr: "nodo presso aws ec2",
+		type: "IN",
 		provider: "AWS",
 		mem: "1",
-		risk: "0.6",
-		func: "SUM"
+		risk: "0.6"
 	},
 	{
 		id: "nodo3",
-		descr: "nodo privato",
-		type: "RES",
+		descr: "nodo computazionale di somma",
+		type: "COMP",
 		provider: "telecom",
-		mem: "1",
-		risk: "0.7"
+		mem: "0",
+		risk: "0.7",
+		func: "SUM"
 	},
 	{
 		id: "nodo4",
-		descr: "nodo privato",
-		type: "IN",
+		descr: "nodo di risoluzione",
+		type: "RES",
 		provider: "telecom",
-		mem: "1",
+		mem: "0",
 		risk: "0.9"
 	}];
 
 	var edges = [
-	{
-		u: "nodo4",
-		v: "nodo1"
-	},
-	{
-		u: "nodo1",
-		v: "nodo2"
-	},
-	{
-		u: "nodo3",
-		v: "nodo1"
-	},
 	{
 		u: "nodo1",
 		v: "nodo3"
 	},
 	{
 		u: "nodo2",
-		v: "nodo1"
+		v: "nodo3"
+	},
+	{
+		u: "nodo3",
+		v: "nodo4"
 	}];
 
 
@@ -216,23 +208,35 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 	// the runSimulation method have to take data from Graph2 and send (via POST request)
 	// at url "/upload"
 	$scope.runSimulation = function() {
-		$scope.simulationRunning = true;
+
+		// DEPRECATED --> JAVA BACKEND -- I CAN DO WITHOUT JAVA!
+
+		/*$scope.simulationRunning = true;
 		$http.post("/uploadNetwork", Graph2.getElementsJSON()).success(function(data){
 			$scope.simulationRunning = false;
 			console.log(data);
 		}).error(function(){
 			$scope.simulationRunning = false;
-		});
+		});*/
+		try {
+			Practice(Graph2.getElements());
+			Practice.checkGraph();
+			Practice.runSimulation();
+		}
+		catch (err) {
+			customAlert(err);
+		}
 	}
 
 
+	// DEPRECATED --> NO MORE JAVA BACKEND
 	// set interval for know if backend is online
-	$interval(function() {
+	/*$interval(function() {
 		checkBackendConnection()
-	}, 3000);
+	}, 3000);*/
 
 	// check if backend is online request("ping"), response("pong")
-	function checkBackendConnection() {
+	/*function checkBackendConnection() {
 		$http.get("/ping").success(function(data){
 			if(data.status == "pong") {
 				$scope.backendConnectionStyle = "green";
@@ -242,7 +246,7 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 			$scope.backendConnectionStyle = "";
 			$scope.statoBackend = "Backend Down"
 		});
-	}
+	}*/
 
 	function customAlert(message) {
 		$scope.alert = true;

@@ -4,7 +4,7 @@ package CustomDataModel;
  * Created by Luca Reverberi (thereve@gmail.com) on 19/10/14.
  */
 
-public class ModelNode {
+public class NodeModel {
 	public String id;
 	public Value value;
 

@@ -4,6 +4,7 @@ package RestService;
  * Created by Luca Reverberi (thereve@gmail.com) on 13/10/14.
  */
 
+import JSONModelling.ResponseSimulation;
 import JSONModelling.UploadNetworkModel;
 import Simulation.Simulation;
 import com.google.gson.Gson;
@@ -21,11 +22,13 @@ public class RestNetworkUpload extends ServerResource {
 			RestHandler.log.info("Received JSON from "+getClientInfo().getAddress());
 			UploadNetworkModel obj = gson.fromJson(entity.getText(), UploadNetworkModel.class);
 			Simulation sim = new Simulation(obj.nodes, obj.edges);
-			return gson.toJson(sim.riskByProvider());
+			ResponseSimulation rSim = new ResponseSimulation();
+			rSim.riskByProviders = sim.getRiskByProvider();
+			rSim.riskBySubsets = sim.getSubsetsRisk();
+			return gson.toJson(rSim);
 		}
 		catch (Exception e) {
 			RestHandler.log.info("Received wrong data from "+getClientInfo().getAddress());
-
 			JsonObject status = new JsonObject();
 			status.addProperty("status","jsonError");
 			return status.toString();

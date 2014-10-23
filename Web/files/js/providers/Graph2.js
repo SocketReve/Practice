@@ -191,7 +191,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		model = renderer.run(g, d3.select("svg g g"));
 	};
 
-	Graph.getElementsJSON = function() {
+	Graph.getElements = function() {
 		// delete useless information for simulation
 		var object = dagreD3.json.encode(g);
 
@@ -201,7 +201,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		}
 		delete object.type;
 
-		return JSON.stringify(object);
+		return object;
 	};
 
 	// transform id with camel case typo

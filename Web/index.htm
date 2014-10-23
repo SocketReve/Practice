@@ -13,8 +13,8 @@
 	<body>
 		<div id="main" ng-controller="NetworkSimulator">
 			<div class="text-center page-header">
-				<h1><span tooltip-placement="left" tooltip="{{ statoBackend }}" id="backendConnectionStyle" ng-class="backendConnectionStyle" class="glyphicon glyphicon-cloud"></span> PRACTICE <small>Network Simulator</small></h1>
-				<img src="files/images/eu_flag.jpg" class="hidden-xs"></img>
+				<h1><span id="backendConnectionStyle" class="glyphicon glyphicon-cloud"></span> PRACTICE <small>Network Simulator</small></h1>
+				<img src="files/images/eu_flag.jpg" class="hidden-xs"> />
 			</div>
 
 			<div ng-click="showParameters()" id="parametersStart">
@@ -47,7 +47,7 @@
 						<label for="memInput" class="control-label col-lg-2 col-md-2"> Mem: </label>
 
 						<div class="col-lg-10">
-							<input required ng-model="memNew" type="number" class="form-control" id="memInput" placeholder="Memoria del nodo istante 0">
+							<input ng-disabled="(nodeTypeNew != 'IN')" required ng-model="memNew" type="number" class="form-control" id="memInput" placeholder="Memoria del nodo istante 0">
 						</div>
 					</div>
 					<div class="form-group">
@@ -68,9 +68,9 @@
 								<ul class="dropdown-menu" role="menu">
 									<li role="presentation" class="dropdown-header">Node Type</li>
 									<li role="presentation" class="divider"></li>
-									<li role="presentation"><a ng-click="nodeTypeNew='IN'; nodeFunctionNew = null" role="menuitem" href="#">IN</a></li>
-									<li role="presentation"><a ng-click="nodeTypeNew='COMP'; nodeFunctionNew = 'SUM' " role="menuitem" href="#">COMP</a></li>
-									<li role="presentation"><a ng-click="nodeTypeNew='RES'; nodeFunctionNew = null " role="menuitem" href="#">RES</a></li>
+									<li role="presentation"><a ng-click="nodeTypeNew='IN'; nodeFunctionNew = null;" role="menuitem" href="#">IN</a></li>
+									<li role="presentation"><a ng-click="nodeTypeNew='COMP'; nodeFunctionNew = 'SUM'; memNew=0; " role="menuitem" href="#">COMP</a></li>
+									<li role="presentation"><a ng-click="nodeTypeNew='RES'; nodeFunctionNew = null; memNew=0; " role="menuitem" href="#">RES</a></li>
 								</ul>
 							</div>
 						</div>
@@ -128,6 +128,13 @@
 						<label for="toInput" class="control-label col-lg-2 col-md-2"> To: </label>
 						<div class="col-lg-10">
 							<input required ng-model="toNew" type="text" class="form-control" id="toInput" placeholder="To">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="timeInput" class="control-label col-lg-2 col-md-2"> Time: </label>
+						<div class="col-lg-10">
+							<input required ng-model="timeNew" type="number" class="form-control" id="timeInput" placeholder="Time instant">
 						</div>
 					</div>
 
