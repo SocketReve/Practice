@@ -1,14 +1,16 @@
+/**
+ * Created by Luca Reverberi - socketreve (thereve@gmail.com) on 22/10/14.
+ */
+
 angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $window, $sanitize) {
 	var g,
 		renderer,
 		zoom,
 		svg,
 		scale = 0.9,
+		scaleOnParameter = 0.8,
 		layout,
 		model;
-
-	// step temporale
-	var edgesCount = 1;
 
 	var Graph = function(nodes, edges) {
 		/*
@@ -55,9 +57,29 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 
 			g = new dagreD3.Digraph({ multigraph: true});
 
+			// extend drawEdgesPath
+			var oldDrawEdgesPath = renderer.drawEdgePaths();
+			renderer.drawEdgePaths(function(graph, root) {
+				var svgEdges = oldDrawEdgesPath(graph, root);
+				var splitedLabel;
+				svgEdges.attr("time", function(edge) {
+					var splitedLabel = edge.split('-');
+					return splitedLabel[2];
+				});
+				svgEdges.attr("from", function(edge) {
+					var splitedLabel = edge.split('-');
+					return splitedLabel[0];
+				});
+				svgEdges.attr("to", function(edge) {
+					var splitedLabel = edge.split('-');
+					return splitedLabel[1];
+				});
+				return svgEdges;
+			});
+
 			// init nodes
 			for(var i = 0; i < nodes.length; i++) {
-				var htmlTemplate =	"<div class='customNode'>";
+				var htmlTemplate =	"<div class='customNode' id='"+ camelCase($sanitize(nodes[i].id)) +"'>";
 						htmlTemplate +=	"<span class='type "+ $sanitize(nodes[i].type) +"'> </span>";
 						htmlTemplate +=	"<span class='name'>"+ camelCase($sanitize(nodes[i].id)) +"</span>";
 						htmlTemplate +=	"<span class='description'>"+ $sanitize(nodes[i].descr) +"</span>";
@@ -78,10 +100,9 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			}
 
 			for(var i = 0; i < edges.length; i++) {
-				g.addEdge(edgesCount, edges[i].u, edges[i].v, {
-					label: edgesCount.toString()
+				g.addEdge(camelCase(edges[i].u) +"-"+ camelCase(edges[i].v) +"-"+ edges[i].time.toString(), edges[i].u, edges[i].v, {
+					label: edges[i].time.toString()
 				});
-				edgesCount++;
 			}
 
 			renderer.layout(layout);
@@ -118,8 +139,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 					htmlTemplate +=	"<span class='name'>"+ camelCase($sanitize(id)) +"</span>";
 					htmlTemplate +=	"<span class='description'>"+ $sanitize(description) +"</span>";
 					htmlTemplate +=	"<span class='provider'>"+ $sanitize(provider.toUpperCase()) +"</span>";
-					// I KNOW! -- SORRY :D
-					htmlTemplate +=	"<span class='mem'>"+ $sanitize(mem)+ ((type == "COMP") ? (" | " + $sanitize(func)) : '' )+"</span>";
+					htmlTemplate +=	"<span class='mem'>"+ $sanitize(mem)+ ((type == "COMP") ? (" | " + $sanitize(func)) : '' )+"</span>"; // I KNOW! -- SORRY :D
 					htmlTemplate +=	"<span class='risk'>"+ $sanitize(risk) +"</span>";
 				htmlTemplate +=	"</div>";
 
@@ -138,25 +158,25 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		}
 
 		this.redesign();
+
 		$timeout(function(){
-			Graph.resize();
+			Graph.scale("parameters");
 		},500);
 	};
 
-	Graph.addEdge = function(source, target) {
+	Graph.addEdge = function(source, target, time) {
 		try {
-			g.addEdge(edgesCount, camelCase(source), camelCase(target), {
-				label: edgesCount.toString()
+			g.addEdge(camelCase(source)+"-"+camelCase(target)+"-"+time.toString(), camelCase(source), camelCase(target), {
+				label: time.toString()
 			});
-			edgesCount++;
 		} catch(err) {
 			throw "Edge is already in the graph or input not valid";
 		}
 
 		this.redesign();
-		$timeout(function(){
+		/*$timeout(function(){
 			Graph.resize();
-		},500);
+		},500);*/
 	};
 
 	Graph.removeNode = function(id) {
@@ -166,9 +186,11 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			throw "Node not exists or input not valid";
 		}
 		this.redesign();
+/*
 		$timeout(function(){
 			Graph.resize();
 		},500);
+*/
 	};
 
 	Graph.removeEdge = function(id) {
@@ -178,9 +200,11 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			throw "Communication not exists";
 		}
 		this.redesign();
+/*
 		$timeout(function(){
 			Graph.resize();
 		},500);
+*/
 	};
 
 	Graph.redesign = function() {
@@ -203,6 +227,71 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 
 		return object;
 	};
+
+	Graph.scale = function(scaleMod) {
+		var translate;
+		var graphWidth = model.graph().width + 5;
+		var graphHeight = model.graph().height + 5;
+		var width = parseInt(svg.style('width').replace(/px/, ''));
+		var height = parseInt(svg.style('height').replace(/px/, ''));
+
+		if (scaleMod == "original") {
+			var zoomScale = Math.min(width / graphWidth * scale, height / graphHeight * scale);
+			translate = [(width/2) - ((graphWidth*zoomScale)/2)+10, (height/2) - ((graphHeight*zoomScale)/2)];
+		}
+		else if (scaleMod == "parameters") {
+			var zoomScale = Math.min(width / graphWidth * scaleOnParameter, height / graphHeight * scaleOnParameter);
+			translate = [(graphWidth / 3), (height / 2) - ((graphHeight * zoomScale) / 2)];
+		}
+
+		zoom.translate(translate);
+		zoom.scale(zoomScale);
+		zoom.event(svg.transition().duration(500));
+	};
+
+	Graph.highlightByTime = function(time, activate) {
+		var edges = document.querySelectorAll(".edgePath[time='" + time.toString() + "']");
+
+		for (var i = 0; i < edges.length; i++) {
+			var element = angular.element(edges[i]);
+			if(activate == true) {
+				element.addClass("green");
+				this.highlightNode(element.attr("to"), activate);
+				this.highlightNode(element.attr("from"), activate);
+			}
+			else {
+				element.removeClass("green");
+				this.highlightNode(element.attr("from"), activate);
+				this.highlightNode(element.attr("to"), activate);
+			}
+		}
+	};
+
+	Graph.highlightNode = function(node, activate) {
+		var nodeSelected = angular.element(document.getElementById(node));
+		var parent = nodeSelected.parent().parent().parent().parent();
+		var rect = angular.element(parent[0].firstElementChild);
+
+		if(activate == true) {
+			angular.element(parent[0].firstElementChild).addClass("green");
+		}
+		else {
+			angular.element(parent[0].firstElementChild).removeClass("green");
+		}
+	};
+
+	Graph.resetHighlight = function() {
+		var nodes = document.querySelectorAll("rect");
+		var edges = document.querySelectorAll(".edgePath");
+
+		for(var i = 0; i < nodes.length; i++) {
+			angular.element(nodes[i]).removeClass("green");
+		}
+
+		for(var i = 0; i < edges.length; i++) {
+			angular.element(edges[i]).removeClass("green");
+		}
+	}
 
 	// transform id with camel case typo
 	function camelCase(input) {

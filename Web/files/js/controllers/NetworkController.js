@@ -1,3 +1,7 @@
+/**
+ * Created by Luca Reverberi - socketreve (thereve@gmail.com) on 03/10/14.
+ */
+
 angular.module("PracticeSimulator").controller("NetworkSimulator", function($scope, $interval, $timeout, $http, Graph2, Practice){
 	// init
 	$scope.nameNew = "";
@@ -37,7 +41,7 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 		descr: "nodo presso aws ec2",
 		type: "IN",
 		provider: "AWS",
-		mem: "1",
+		mem: "2",
 		risk: "0.6"
 	},
 	{
@@ -56,66 +60,83 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 		provider: "telecom",
 		mem: "0",
 		risk: "0.9"
+	},
+	{
+		id: "nodo5",
+		descr: "nodo di risoluzione",
+		type: "IN",
+		provider: "VULTR",
+		mem: "2",
+		risk: "0.9"
+	},
+	{
+		id: "nodo6",
+		descr: "nodo di risoluzione",
+		type: "COMP",
+		provider: "VULTR",
+		mem: "0",
+		risk: "0.9",
+		func: "SUM"
+	},
+	{
+		id: "nodo7",
+		descr: "nodo di risoluzione",
+		type: "RES",
+		provider: "ARUBA",
+		mem: "0",
+		risk: "0.9"
 	}];
 
 	var edges = [
 	{
 		u: "nodo1",
-		v: "nodo3"
+		v: "nodo3",
+		time: 0
 	},
 	{
 		u: "nodo2",
-		v: "nodo3"
+		v: "nodo3",
+		time: 0
+	},
+	{
+		u: "nodo5",
+		v: "nodo3",
+		time: 0
 	},
 	{
 		u: "nodo3",
-		v: "nodo4"
+		v: "nodo6",
+		time: 1
+	},
+	/*{
+		u: "nodo6",
+		v: "nodo3",
+		time: 2
+	},*/
+	{
+		u: "nodo3",
+		v: "nodo4",
+		time: 3
+	},
+	{
+		u: "nodo3",
+		v: "nodo7",
+		time: 4
+	},
+	{
+		u: "nodo6",
+		v: "nodo7",
+		time: 5
+	},
+	{
+		u: "nodo5",
+		v: "nodo6",
+		time: 0
 	}];
 
 
 	// init Graph2 engine
 	Graph2(nodes, edges);
-
-		/*cy = network;
-
-		cy.on("click",function(event){
-			if(event.cyTarget === cy) {
-				// background
-				$("#modifier").addClass("hide");
-				$("#parameters").removeClass("slideRight");
-			}
-			else {
-				if(event.cyTarget.isNode()) {
-					// if click on node ( also group )
-					$scope.modifierIsNode = true;
-					$scope.modifierIsEdge = false;
-
-					$scope.nodeTypeModifier = event.cyTarget.data("type");
-					$scope.nodeNameModifier = event.cyTarget.data("id");
-					$scope.nodeDescriptionModifier = event.cyTarget.data("descr");
-					$scope.nodeGroupModifier = event.cyTarget.data("parent");
-					$scope.nodeMemModifier = event.cyTarget.data("mem");
-
-					console.log($scope.nodeGroupModifier);
-
-					$scope.$apply();
-					$("#modifier").removeClass("hide");
-				}
-
-				else if(event.cyTarget.isEdge()) {
-					// if click on edge
-					$scope.modifierIsEdge = true;
-					$scope.modifierIsNode = false;
-
-					$scope.nodeFromModifier = event.cyTarget.data("source");
-					$scope.nodeToModifier = event.cyTarget.data("target");
-
-					$scope.$apply();
-					$("#modifier").removeClass("hide");
-				}
-			}
-
-		});*/
 
 	// events for modify Graph2
 	$scope.addNode = function() {
@@ -142,11 +163,12 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 	$scope.addCommunication = function() {
 		if($scope.fromNew.trim() != "" && $scope.toNew.trim() != "") {
 			try {
-				Graph2.addEdge($scope.fromNew.trim(), $scope.toNew.trim());
+				Graph2.addEdge($scope.fromNew.trim(), $scope.toNew.trim(), $scope.timeNew);
 
 				// clear input form
 				$scope.fromNew = "";
 				$scope.toNew = "";
+				$scope.timeNew = 0;
 			}
 			catch(err) {
 				customAlert(err);
@@ -191,62 +213,42 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 	// events for dom
 	$scope.hideModifier = function() {
 		angular.element(document.getElementById("modifier")).addClass("hide");
-	}
+	};
 
 	$scope.hideParameters = function() {
-		angular.element(document.getElementById("parameters")).removeClass("slideRight");
-	}
+		if(angular.element(document.getElementById("parameters")).hasClass("slideRight")) {
+			angular.element(document.getElementById("parameters")).removeClass("slideRight");
+			Graph2.scale("original");
+		}
+	};
 
 	$scope.showParameters = function() {
 		angular.element(document.getElementById("parameters")).addClass("slideRight");
-	}
+		Graph2.scale("parameters");
+	};
 
 	$scope.restartVisualizer = function() {
 		Graph2.resize();
-	}
+	};
 
-	// the runSimulation method have to take data from Graph2 and send (via POST request)
-	// at url "/upload"
 	$scope.runSimulation = function() {
+		Graph2.resize();
 
-		// DEPRECATED --> JAVA BACKEND -- I CAN DO WITHOUT JAVA!
-
-		/*$scope.simulationRunning = true;
-		$http.post("/uploadNetwork", Graph2.getElementsJSON()).success(function(data){
-			$scope.simulationRunning = false;
-			console.log(data);
-		}).error(function(){
-			$scope.simulationRunning = false;
-		});*/
 		try {
+			$scope.simulationRunning = true;
+
 			Practice(Graph2.getElements());
 			Practice.checkGraph();
-			Practice.runSimulation();
+			Practice.runSimulation().then(function(){
+				$scope.simulationRunning = false;
+			});
+
 		}
 		catch (err) {
+			$scope.simulationRunning = false;
 			customAlert(err);
 		}
-	}
-
-
-	// DEPRECATED --> NO MORE JAVA BACKEND
-	// set interval for know if backend is online
-	/*$interval(function() {
-		checkBackendConnection()
-	}, 3000);*/
-
-	// check if backend is online request("ping"), response("pong")
-	/*function checkBackendConnection() {
-		$http.get("/ping").success(function(data){
-			if(data.status == "pong") {
-				$scope.backendConnectionStyle = "green";
-				$scope.statoBackend = "Backend Up"
-			}
-		}).error(function() {
-			$scope.backendConnectionStyle = "";
-			$scope.statoBackend = "Backend Down"
-		});
-	}*/
+	};
 
 	function customAlert(message) {
 		$scope.alert = true;

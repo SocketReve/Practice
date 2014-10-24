@@ -1,4 +1,7 @@
+/**
+ * Created by Luca Reverberi - socketreve (thereve@gmail.com) on 02/10/14.
+ */
+
 (function() {
-	// Luca Reverberi - SocketReve - thereve@gmail.com
 	angular.module("PracticeSimulator", [ "ngAnimate", "ui.bootstrap", "angular-loading-bar", "ngSanitize"]);
 })();

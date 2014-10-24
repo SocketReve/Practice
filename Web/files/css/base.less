@@ -150,6 +150,7 @@ html,body {
 					height: @nodeHeight;
 					white-space: nowrap;
 					text-overflow: ellipsis;
+					box-shadow: 0 0 20px red;
 
 					.type {
 						float: left;
@@ -241,6 +242,12 @@ html,body {
 					stroke-width: 1px;
 					stroke: #bbb;
 					fill: #666;
+					transition: stroke 1.1s;
+
+					&.green {
+						stroke-width: 3px !important;
+						stroke: @green !important;
+					}
 				}
 
 				.edgeLabel rect {
@@ -254,6 +261,12 @@ html,body {
 				.edgePath {
 					stroke: #696969;
 					fill: none;
+					transition: stroke 0.7s;
+
+					&.green {
+						stroke-width: 3px !important;
+						stroke: @green !important;
+					}
 				}
 			}
 		}
