@@ -48,60 +48,70 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			renderer = new dagreD3.Renderer();
 
 			dagreD3.zoom(svg, zoom);
-			//zoom.scale(scale).event(svg);
 
 			layout = dagreD3.layout()
 							.nodeSep(70)
 							.rankSep(120)
 							.rankDir("LR");
 
-			g = new dagreD3.Digraph({ multigraph: true});
+			g = new dagreD3.Digraph({ multigraph: true });
 
 			// extend drawEdgesPath
 			var oldDrawEdgesPath = renderer.drawEdgePaths();
 			renderer.drawEdgePaths(function(graph, root) {
 				var svgEdges = oldDrawEdgesPath(graph, root);
-				var splitedLabel;
+				svgEdges.attr("id", function(edge){
+					return edge;
+				});
 				svgEdges.attr("time", function(edge) {
-					var splitedLabel = edge.split('-');
-					return splitedLabel[2];
+					return g.edge(edge).label;
 				});
 				svgEdges.attr("from", function(edge) {
-					var splitedLabel = edge.split('-');
-					return splitedLabel[0];
+					return g.edge(edge).from;
 				});
 				svgEdges.attr("to", function(edge) {
-					var splitedLabel = edge.split('-');
-					return splitedLabel[1];
+					return g.edge(edge).to;
 				});
+				svgEdges.attr("class", function(edge) {
+					return "edgePath enter " + ((g.edge(edge).highlight) ? "green" : "");
+				});
+
 				return svgEdges;
+			});
+			// extend drawNodes
+			var oldDrawNodes = renderer.drawNodes();
+			renderer.drawNodes(function(graph, root){
+				var svgNodes = oldDrawNodes(graph,root);
+				svgNodes.attr("id", function(u) {
+					return u;
+				});
+				svgNodes.select("rect").attr("class",function(u) {
+					return ((g.node(u).highlight) ? "green" : "");
+				});
+				return svgNodes;
 			});
 
 			// init nodes
 			for(var i = 0; i < nodes.length; i++) {
-				var htmlTemplate =	"<div class='customNode' id='"+ camelCase($sanitize(nodes[i].id)) +"'>";
-						htmlTemplate +=	"<span class='type "+ $sanitize(nodes[i].type) +"'> </span>";
-						htmlTemplate +=	"<span class='name'>"+ camelCase($sanitize(nodes[i].id)) +"</span>";
-						htmlTemplate +=	"<span class='description'>"+ $sanitize(nodes[i].descr) +"</span>";
-						htmlTemplate +=	"<span class='provider'> "+ $sanitize(nodes[i].provider.toUpperCase()) +"</span>";
-						htmlTemplate +=	"<span class='mem'>"+ $sanitize(nodes[i].mem) + ((nodes[i].type == "COMP") ? (" | " + $sanitize(nodes[i].func)) : '' )+"</span>";
-						htmlTemplate +=	"<span class='risk'>"+ $sanitize(nodes[i].risk) +"</span>";
-					htmlTemplate +=	"</div>";
-
 				g.addNode(camelCase(nodes[i].id.trim()), {
 					labelType: "html",
-					label: htmlTemplate,
+					label: getNodeHTMLLabel(nodes[i].id, nodes[i].descr, nodes[i].type, nodes[i].provider, nodes[i].mem, nodes[i].risk, nodes[i].func),
 					descr: nodes[i].descr,
 					type: nodes[i].type,
 					provider: nodes[i].provider.toUpperCase(),
 					mem: parseInt(nodes[i].mem),
-					risk: parseFloat(nodes[i].risk)
+					risk: parseFloat(nodes[i].risk),
+					func: nodes[i].func,
+					highlight: false
 				});
 			}
 
 			for(var i = 0; i < edges.length; i++) {
 				g.addEdge(camelCase(edges[i].u) +"-"+ camelCase(edges[i].v) +"-"+ edges[i].time.toString(), edges[i].u, edges[i].v, {
-					label: edges[i].time.toString()
+					label: edges[i].time.toString(),
+					from: camelCase(edges[i].u),
+					to: camelCase(edges[i].v),
+					highlight: false
 				});
 			}
 
@@ -134,27 +144,19 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 
 	Graph.addNode = function(id, description, type, provider, mem, risk, func) {
 		try {
-			var htmlTemplate =	"<div class='customNode'>";
-					htmlTemplate +=	"<span class='type "+ $sanitize(type) +"'> </span>";
-					htmlTemplate +=	"<span class='name'>"+ camelCase($sanitize(id)) +"</span>";
-					htmlTemplate +=	"<span class='description'>"+ $sanitize(description) +"</span>";
-					htmlTemplate +=	"<span class='provider'>"+ $sanitize(provider.toUpperCase()) +"</span>";
-					htmlTemplate +=	"<span class='mem'>"+ $sanitize(mem)+ ((type == "COMP") ? (" | " + $sanitize(func)) : '' )+"</span>"; // I KNOW! -- SORRY :D
-					htmlTemplate +=	"<span class='risk'>"+ $sanitize(risk) +"</span>";
-				htmlTemplate +=	"</div>";
-
 			g.addNode(camelCase(id.trim()), {
 				labelType: "html",
-				label: htmlTemplate,
+				label: getNodeHTMLLabel(id, description, type, provider, mem, risk, func),
 				descr: description,
 				type: type,
 				provider: provider.toUpperCase(),
 				mem: parseInt(mem),
 				risk: parseFloat(risk),
-				func: func
+				func: func,
+				highlight: false
 			});
 		} catch(err) {
-			throw "Node already in graph or input not valid";
+			throw { message: "Node already in graph or input not valid" };
 		}
 
 		this.redesign();
@@ -167,10 +169,13 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 	Graph.addEdge = function(source, target, time) {
 		try {
 			g.addEdge(camelCase(source)+"-"+camelCase(target)+"-"+time.toString(), camelCase(source), camelCase(target), {
-				label: time.toString()
+				label: time.toString(),
+				from: camelCase(source),
+				to: camelCase(target),
+				highlight: false
 			});
 		} catch(err) {
-			throw "Edge is already in the graph or input not valid";
+			throw { message: "Edge is already in the graph or input not valid" };
 		}
 
 		this.redesign();
@@ -183,7 +188,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		try {
 			g.delNode(id);
 		} catch(err) {
-			throw "Node not exists or input not valid";
+			throw { message: "Node not exists or input not valid" };
 		}
 		this.redesign();
 /*
@@ -197,7 +202,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		try {
 			g.delEdge(id);
 		} catch(err) {
-			throw "Communication not exists";
+			throw { message: "Communication not exists" };
 		}
 		this.redesign();
 /*
@@ -216,16 +221,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 	};
 
 	Graph.getElements = function() {
-		// delete useless information for simulation
-		var object = dagreD3.json.encode(g);
-
-		for(var i = 0; i < object.nodes.length; i++) {
-			delete object.nodes[i].value["label"];
-			delete object.nodes[i].value["labelType"];
-		}
-		delete object.type;
-
-		return object;
+		return dagreD3.json.encode(g);
 	};
 
 	Graph.scale = function(scaleMod) {
@@ -249,34 +245,46 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		zoom.event(svg.transition().duration(500));
 	};
 
-	Graph.highlightByTime = function(time, activate) {
+/*	Graph.highlightByTime = function(time, activate) {
 		var edges = document.querySelectorAll(".edgePath[time='" + time.toString() + "']");
 
 		for (var i = 0; i < edges.length; i++) {
-			var element = angular.element(edges[i]);
-			if(activate == true) {
-				element.addClass("green");
-				this.highlightNode(element.attr("to"), activate);
-				this.highlightNode(element.attr("from"), activate);
-			}
-			else {
-				element.removeClass("green");
-				this.highlightNode(element.attr("from"), activate);
-				this.highlightNode(element.attr("to"), activate);
-			}
+			this.highlightEdge(edges[i], activate);
+			this.highlightNode(edges[i].getAttribute("to"), activate);
+			this.highlightNode(edges[i].getAttribute("from"), activate);
 		}
+	};*/
+
+	Graph.highlightEdge = function(edge, activate) {
+		if(activate == true) {
+			g.edge(edge).highlight = true;
+		}
+		else {
+			g.edge(edge).highlight = false;
+		}
+
+/*		// if is edge already element --> transform
+		if(typeof edge != "string") {
+			var edgeSelected = angular.element(edge);
+		}
+		else {
+			var edgeSelected = angular.element(document.getElementById(edge));
+		}
+
+		if(activate == true) {
+			edgeSelected.addClass("green");
+		}
+		else {
+			edgeSelected.removeClass("green");
+		}*/
 	};
 
 	Graph.highlightNode = function(node, activate) {
-		var nodeSelected = angular.element(document.getElementById(node));
-		var parent = nodeSelected.parent().parent().parent().parent();
-		var rect = angular.element(parent[0].firstElementChild);
-
 		if(activate == true) {
-			angular.element(parent[0].firstElementChild).addClass("green");
+			g.node(node).highlight = true;
 		}
 		else {
-			angular.element(parent[0].firstElementChild).removeClass("green");
+			g.node(node).highlight = false;
 		}
 	};
 
@@ -291,6 +299,28 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		for(var i = 0; i < edges.length; i++) {
 			angular.element(edges[i]).removeClass("green");
 		}
+	};
+
+/*	Graph.getNodeValue = function(id, value) {
+		return g.node(id)[value];
+	}*/
+
+	Graph.changeNodeMem = function(id, mem) {
+		var temp = g.node(id);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, mem, temp.risk, temp.func);
+		this.redesign();
+	};
+
+	function getNodeHTMLLabel(id, description, type, provider, mem, risk, func) {
+		var htmlTemplate =	"<div class='customNode'>";
+				htmlTemplate +=	"<span class='type "+ $sanitize(type) +"'> </span>";
+				htmlTemplate +=	"<span class='name'>"+ camelCase($sanitize(id)) +"</span>";
+				htmlTemplate +=	"<span class='description'>"+ $sanitize(description) +"</span>";
+				htmlTemplate +=	"<span class='provider'>"+ $sanitize(provider.toUpperCase()) +"</span>";
+				htmlTemplate +=	"<span class='mem'>"+ $sanitize(mem)+ ((type == "COMP") ? (" | " + $sanitize(func)) : '' )+"</span>"; // I KNOW! -- SORRY :D
+				htmlTemplate +=	"<span class='risk'>"+ $sanitize(risk) +"</span>";
+			htmlTemplate +=	"</div>";
+		return htmlTemplate;
 	}
 
 	// transform id with camel case typo

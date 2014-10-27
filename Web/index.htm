@@ -17,7 +17,7 @@
 				<img src="files/images/eu_flag.jpg" class="hidden-xs"/>
 			</div>
 
-			<div ng-click="showParameters()" id="parametersStart">
+			<div id="parametersStart" ng-click="showParameters()" >
 				>
 			</div>
 			<div id="parameters" class="col-lg-3 col-md-4 col-sm-5 col-xs-5">
@@ -203,6 +203,10 @@
 					</svg>
 				</div>
 
+				<div id="simulationCharts">
+					<button type="button" ng-click="generateCharts()" class="btn btn-block btn-default"> Simulation Charts </button>
+				</div>
+
 				<div id="restartVisualizer">
 					<button type="button" ng-click="restartVisualizer()" class="btn btn-block btn-default"> Reset View </button>
 				</div>
@@ -263,6 +267,23 @@
 			<alert ng-show="alert" class="text-center" type="danger" close="(alert = false)">{{ alertMessage }}</alert>
 		</div>
 
+		<script type="text/ng-template" id="modalCharts.html">
+			<div class="modal-header">
+				<h3 class="modal-title">I'm a modal!</h3>
+			</div>
+			<div class="modal-body">
+				<ul>
+					<li ng-repeat="item in items">
+						<a ng-click="selected.item = item">{{ item }}</a>
+					</li>
+				</ul>
+				Selected: <b>{{ selected.item }}</b>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" ng-click="ok()">OK</button>
+				<button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+			</div>
+		</script>
 
 		<script type="text/javascript" src="files/js/vendor/d3.min.js"></script>
 		<script type="text/javascript" src="files/js/vendor/dagre-d3.min.js"></script>

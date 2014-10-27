@@ -2,7 +2,7 @@
  * Created by Luca Reverberi - socketreve (thereve@gmail.com) on 03/10/14.
  */
 
-angular.module("PracticeSimulator").controller("NetworkSimulator", function($scope, $interval, $timeout, $http, Graph2, Practice){
+angular.module("PracticeSimulator").controller("NetworkSimulator", function($scope, $modal, $interval, $timeout, Graph2, Practice){
 	// init
 	$scope.nameNew = "";
 	$scope.descrizioneNew = "";
@@ -116,17 +116,17 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 	{
 		u: "nodo3",
 		v: "nodo4",
-		time: 3
+		time: 2
 	},
 	{
 		u: "nodo3",
 		v: "nodo7",
-		time: 4
+		time: 3
 	},
 	{
 		u: "nodo6",
 		v: "nodo7",
-		time: 5
+		time: 4
 	},
 	{
 		u: "nodo5",
@@ -237,7 +237,7 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 		try {
 			$scope.simulationRunning = true;
 
-			Practice(Graph2.getElements());
+			Practice();
 			Practice.checkGraph();
 			Practice.runSimulation().then(function(){
 				$scope.simulationRunning = false;
@@ -250,9 +250,28 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 		}
 	};
 
+	$scope.generateCharts = function() {
+		var modalInstance = $modal.open({
+			templateUrl: 'modalCharts.html',
+			size: "lg",
+			resolve: {
+				items: function () {
+					return $scope.items;
+				}
+			}
+		});
+
+		modalInstance.result.then(function (selectedItem) {
+				$scope.selected = selectedItem;
+			}, function () {
+				console.log('Modal dismissed at: ' + new Date());
+			});
+	};
+
 	function customAlert(message) {
+		console.log(message);
 		$scope.alert = true;
-		$scope.alertMessage = message;
+		$scope.alertMessage = message.message;
 
 		$timeout(function() {
 			$scope.alert = false;

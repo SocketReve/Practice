@@ -3,6 +3,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  font-family: "Helvetica Neue" !important;
 }
 #main {
   height: 100%;
@@ -34,8 +35,6 @@ body {
 #main .page-header h1 #backendConnectionStyle {
   top: 10px;
   padding-right: 10px;
-}
-#main .page-header h1 #backendConnectionStyle.green {
   color: #17cf00;
 }
 #main .page-header img {
@@ -49,7 +48,15 @@ body {
   font-weight: bold;
   padding: 8px;
   cursor: pointer;
-  margin-top: 10px;
+  height: 55px;
+  overflow: auto;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  right: auto;
+  text-align: left;
   border-bottom: 1px solid grey;
   border-right: 1px solid grey;
   border-top: 1px solid grey;
@@ -124,9 +131,10 @@ body {
 #main #graphContainer #network svg .customNode {
   line-height: normal;
   width: 200px;
-  height: 95px;
+  height: 90px;
   white-space: nowrap;
   text-overflow: ellipsis;
+  box-shadow: 0 0 20px red;
 }
 #main #graphContainer #network svg .customNode .type {
   float: left;
@@ -136,6 +144,7 @@ body {
   height: 100%;
   width: 15px;
   border-right: 1px solid #bbb;
+  padding-top: 3px;
 }
 #main #graphContainer #network svg .customNode .type.COMP {
   background-color: #ff372a;
@@ -193,6 +202,9 @@ body {
   padding-left: 10px;
   border-right: 1px solid grey;
 }
+#main #graphContainer #network svg .customNode .mem.modified {
+  color: red;
+}
 #main #graphContainer #network svg .customNode .risk {
   display: inline-block;
   font-size: 0.9em;
@@ -206,6 +218,11 @@ body {
   stroke-width: 1px;
   stroke: #bbb;
   fill: #666;
+  transition: stroke 1.1s;
+}
+#main #graphContainer #network svg .node rect.green {
+  stroke-width: 3px !important;
+  stroke: #17cf00 !important;
 }
 #main #graphContainer #network svg .edgeLabel rect {
   fill: none;
@@ -216,6 +233,11 @@ body {
 #main #graphContainer #network svg .edgePath {
   stroke: #696969;
   fill: none;
+  transition: stroke 0.7s;
+}
+#main #graphContainer #network svg .edgePath.green {
+  stroke-width: 3px !important;
+  stroke: #17cf00 !important;
 }
 #main #graphContainer #runSimulation {
   position: absolute;
@@ -272,6 +294,14 @@ body {
     transform: scale(1);
     -webkit-transform: scale(1);
   }
+}
+#main #graphContainer #simulationCharts {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+}
+#main #graphContainer #simulationCharts button {
+  border-radius: 0;
 }
 #main #graphContainer #restartVisualizer {
   position: absolute;
