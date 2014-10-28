@@ -69,14 +69,19 @@
 									<li role="presentation" class="dropdown-header">Node Type</li>
 									<li role="presentation" class="divider"></li>
 									<li role="presentation"><a ng-click="nodeTypeNew='IN'; nodeFunctionNew = null;" role="menuitem" href="#">IN</a></li>
-									<li role="presentation"><a ng-click="nodeTypeNew='COMP'; nodeFunctionNew = 'SUM'; memNew=0; " role="menuitem" href="#">COMP</a></li>
+
+									<li role="presentation" class="divider"></li>
+									<li role="presentation" class="dropdown-header">COMP</li>
+									<li ng-repeat="func in funcOfCompNode" role="presentation"><a ng-click="$parent.nodeTypeNew='COMP'; $parent.nodeFunctionNew=func" role="menuitem" href="#">{{ func }}</a></li>
+									<li role="presentation" class="divider"></li>
+
 									<li role="presentation"><a ng-click="nodeTypeNew='RES'; nodeFunctionNew = null; memNew=0; " role="menuitem" href="#">RES</a></li>
 								</ul>
 							</div>
 						</div>
 					</div>
 
-					<div ng-show="(nodeTypeNew == 'COMP')" class="form-group">
+					<!-- <div ng-show="(nodeTypeNew == 'COMP')" class="form-group">
 						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
 							<div class="dropdown">
 								<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
@@ -86,14 +91,11 @@
 								<ul class="dropdown-menu" role="menu">
 									<li role="presentation" class="dropdown-header">Node Function</li>
 									<li role="presentation" class="divider"></li>
-									<li role="presentation"><a ng-click="nodeFunctionNew='SUM'" role="menuitem" href="#">SUM</a></li>
-									<li role="presentation"><a ng-click="nodeFunctionNew='SUB'" role="menuitem" href="#">SUB</a></li>
-									<li role="presentation"><a ng-click="nodeFunctionNew='MIN'" role="menuitem" href="#">MIN</a></li>
-									<li role="presentation"><a ng-click="nodeFunctionNew='MAX'" role="menuitem" href="#">MAX</a></li>
+									<li ng-repeat="func in funcOfCompNode" role="presentation"><a ng-click="$parent.nodeFunctionNew=func" role="menuitem" href="#">{{ func }}</a></li>
 								</ul>
 							</div>
 						</div>
-					</div>
+					</div> -->
 
 					<h4> Provider </h4>
 					<div class="form-group">
@@ -187,7 +189,7 @@
 				</form>
 
 			</div>
-			<div id="graphContainer" ng-click="hideParameters() && hideModifier()">
+			<div id="graphContainer" ng-click="hideParameters()">
 				<div id="runSimulation">
 					<button type="button" ng-click="runSimulation()" ng-hide="simulationRunning" class="btn btn-block btn-default"> Run Simulation </button>
 					<div ng-show="simulationRunning" class="spinner">
@@ -216,10 +218,10 @@
 						<button type="button" ng-click="hideModifier()" class="close"><span aria-hidden="true">&times;</span></button>
 					</div>
 					<br>
-					<div ng-show="modifierIsNode" class="col-lg-2 col-md-2 col-lg-offset-1 col-md-offset-1">
+					<div ng-show="modifierIsNode" class="col-lg-4 col-md-4 col-lg-offset-1 col-md-offset-1">
 						<div class="input-group">
 							<span class="input-group-addon"> Name </span>
-							<input required ng-model="nodeNameModifier" type="text" class="form-control" placeholder="Name">
+							<input disabled ng-model="nodeNameModifier" type="text" class="form-control" placeholder="Name">
 						</div>
 						<br>
 						<div class="input-group">
@@ -227,7 +229,7 @@
 							<input required ng-model="nodeDescriptionModifier" type="text" class="form-control" placeholder="Description">
 						</div>
 					</div>
-					<div ng-show="modifierIsEdge" class="col-lg-2 col-md-2 col-lg-offset-1 col-md-offset-1">
+					<div ng-show="modifierIsEdge" class="col-lg-4 col-md-4 col-lg-offset-1 col-md-offset-1">
 						<div class="input-group">
 							<span class="input-group-addon"> From </span>
 							<input required ng-model="nodeFromModifier" type="text" class="form-control" placeholder="Orientation Edge From">
@@ -238,21 +240,26 @@
 							<input required ng-model="nodeToModifier" type="text" class="form-control" placeholder="Orientation Edge To">
 						</div>
 					</div>
-					<div ng-show="modifierIsNode && nodeTypeModifier !== undefined " class="col-lg-2 col-md-2">
-						<div class="dropdown">
+					<div ng-show="modifierIsNode && nodeTypeModifier !== undefined " class="col-lg-4 col-md-4">
+						<div class="dropup" dropdown>
 							<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
 								{{ nodeTypeModifier }}
 								<span class="caret"></span>
 							</button>
 							<ul class="dropdown-menu" role="menu">
 								<li role="presentation"><a ng-click="nodeTypeModifier='IN'" role="menuitem" href="#">IN</a></li>
-								<li role="presentation"><a ng-click="nodeTypeModifier='COMP'" role="menuitem" href="#">COMP</a></li>
+								<li role="presentation" class="divider"></li>
+
+								<li role="presentation" class="dropdown-header">COMP</li>
+								<li ng-repeat="func in funcOfCompNode" role="presentation"><a ng-click="$parent.nodeTypeModifier='COMP'; $parent.nodeFuncModifier=func" role="menuitem" href="#">{{ func }}</a></li>
+								<li role="presentation" class="divider"></li>
+
 								<li role="presentation"><a ng-click="nodeTypeModifier='RES'" role="menuitem" href="#">RES</a></li>
 							</ul>
 						</div>
 						<br>
 						<div class="input-group">
-							<span class="input-group-addon"> Group </span>
+							<span class="input-group-addon"> Provider </span>
 							<input required ng-model="nodeGroupModifier" type="text" class="form-control" placeholder="Node Group">
 						</div>
 					</div>
@@ -261,6 +268,9 @@
 							<span class="input-group-addon"> Mem </span>
 							<input required ng-model="nodeMemModifier" type="text" class="form-control" placeholder="Node Group">
 						</div>
+					</div>
+					<div class="col-lg-2 col-md-2">
+						<button id="modificationButton" class="btn btn-primary" ng-click="saveModifications()"> Save </button>
 					</div>
 				</div>
 			</div>

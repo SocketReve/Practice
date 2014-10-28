@@ -13,6 +13,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		model;
 
 	var Graph = function(nodes, edges) {
+		var defer = $q.defer();
 		/*
 		 	nodes template:
 
@@ -38,6 +39,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 
 		// on DOM ready
 		angular.element(document).ready(function(){
+			defer.resolve();
 			// init d3 svg
 			svg = d3.select("svg");
 			centerG = svg.append("g");
@@ -125,6 +127,41 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		angular.element($window).bind("resize", function(){
 			Graph.resize();
 		});
+		return defer.promise;
+	};
+
+	Graph.getRawNode = function(node) {
+		return g.node(node);
+	};
+
+	Graph.setNodeDescription = function(id, description) {
+		var temp = g.node(id);
+		g.node(id).descr = description;
+		g.node(id).label = getNodeHTMLLabel(id, description, temp.type, temp.provider, temp.mem, temp.risk, temp.func);
+	};
+
+	Graph.setNodeMem = function(id, mem) {
+		var temp = g.node(id);
+		g.node(id).mem = mem;
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, mem, temp.risk, temp.func);
+	};
+
+	Graph.setNodeProvider = function(id, provider) {
+		var temp = g.node(id);
+		g.node(id).provider = provider;
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, provider, temp.mem, temp.risk, temp.func);
+	};
+
+	Graph.setNodeType = function(id, type) {
+		var temp = g.node(id);
+		g.node(id).type = type;
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, type, temp.provider, temp.mem, temp.risk, temp.func);
+	};
+
+	Graph.setNodeFunc = function(id, func) {
+		var temp = g.node(id);
+		g.node(id).func = func;
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, temp.risk, func);
 	};
 
 	Graph.resize = function() {
@@ -299,16 +336,6 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		for(var i = 0; i < edges.length; i++) {
 			angular.element(edges[i]).removeClass("green");
 		}
-	};
-
-/*	Graph.getNodeValue = function(id, value) {
-		return g.node(id)[value];
-	}*/
-
-	Graph.changeNodeMem = function(id, mem) {
-		var temp = g.node(id);
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, mem, temp.risk, temp.func);
-		this.redesign();
 	};
 
 	function getNodeHTMLLabel(id, description, type, provider, mem, risk, func) {

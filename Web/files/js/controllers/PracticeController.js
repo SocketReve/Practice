@@ -2,7 +2,7 @@
  * Created by Luca Reverberi - socketreve (thereve@gmail.com) on 03/10/14.
  */
 
-angular.module("PracticeSimulator").controller("NetworkSimulator", function($scope, $modal, $interval, $timeout, Graph2, Practice){
+angular.module("PracticeSimulator").controller("NetworkSimulator", function($scope, $modal, $interval, $timeout, Graph2, Practice, PracticeCOMPFunctions){
 	// init
 	$scope.nameNew = "";
 	$scope.descrizioneNew = "";
@@ -17,16 +17,21 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 	$scope.newGroupDescription = "";
 	$scope.nodeTypeNew = "IN";
 	$scope.nodeTypeModifier = "COMP";
-	$scope.nodeIDModifier = "";
+	$scope.nodeFuncModifier = "";
+	$scope.nodeNameModifier = "";
 	$scope.nodeDescriptionModifier = "";
 	$scope.nodeFromModifier = "";
 	$scope.nodeToModifier = "";
 	$scope.nodeGroupModifier = "";
 	$scope.simulationRunning = false;
+	$scope.funcOfCompNode = [];
 	$scope.statoBackend = "Backend Down";
 	$scope.alert = false;
 
-	//checkBackendConnection();
+	// init typeOfCompNode
+	for(type in PracticeCOMPFunctions) {
+		$scope.funcOfCompNode.push(type);
+	}
 
 	var nodes = [{
 		id: "nodo1",
@@ -76,7 +81,7 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 		provider: "VULTR",
 		mem: "0",
 		risk: "0.9",
-		func: "SUM"
+		func: "MIN"
 	},
 	{
 		id: "nodo7",
@@ -132,11 +137,18 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 		u: "nodo5",
 		v: "nodo6",
 		time: 0
+	},
+	{
+		u: "nodo2",
+		v: "nodo6",
+		time: 0
 	}];
 
 
 	// init Graph2 engine
-	Graph2(nodes, edges);
+	Graph2(nodes, edges).then(function(){
+		bindEvent();
+	});
 
 	// events for modify Graph2
 	$scope.addNode = function() {
@@ -268,6 +280,15 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 			});
 	};
 
+	$scope.saveModifications = function() {
+		Graph2.setNodeDescription($scope.nodeNameModifier,$scope.nodeDescriptionModifier);
+		Graph2.setNodeProvider($scope.nodeNameModifier, $scope.nodeGroupModifier);
+		Graph2.setNodeType($scope.nodeNameModifier, $scope.nodeTypeModifier);
+		Graph2.setNodeFunc($scope.nodeNameModifier, $scope.nodeFuncModifier);
+
+		Graph2.redesign();
+	};
+
 	function customAlert(message) {
 		console.log(message);
 		$scope.alert = true;
@@ -277,5 +298,23 @@ angular.module("PracticeSimulator").controller("NetworkSimulator", function($sco
 			$scope.alert = false;
 			$scope.alertMessage = "";
 		},3000);
-	}
+	};
+
+	function bindEvent() {
+		// init event on node
+		var nodesEvents = document.getElementsByClassName("node");
+		for(var i = 0; i < nodesEvents.length; i++) {
+			angular.element(nodesEvents[i]).on("click", function() {
+				$scope.modifierIsNode = true;
+				$scope.modifierIsEdge = false;
+
+				angular.element(document.getElementById("modifier")).removeClass("hide");
+				var node = Graph2.getRawNode(this.id);
+				$scope.nodeTypeModifier = node.type;
+				$scope.nodeNameModifier = this.id;
+				$scope.nodeDescriptionModifier = node.descr;
+				$scope.nodeGroupModifier = node.provider;
+			});
+		}
+	};
 });
