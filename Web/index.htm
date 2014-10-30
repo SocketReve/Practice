@@ -11,19 +11,25 @@
 		<title> Practice Network Simulator </title>
 	</head>
 	<body>
-		<div id="main" ng-controller="NetworkSimulator">
+		<div id="main" ng-controller="PracticeMainController">
 			<div class="text-center page-header">
 				<h1><span id="backendConnectionStyle" class="glyphicon glyphicon-cloud"></span> PRACTICE <small>Network Simulator</small></h1>
 				<img src="files/images/eu_flag.jpg" class="hidden-xs"/>
 			</div>
 
-			<div id="parametersStart" ng-click="showParameters()" >
+			<div id="parametersStart" ng-click="showParameters(true)" >
 				>
+			</div>
+
+			<div id="downloadUpload" >
+				<input type="file" />
+				<a title="Download" class="glyphicon glyphicon-cloud-download" ng-click="downloadGraph($event)"></a>
+				<a title="Upload" class="glyphicon glyphicon-cloud-upload" ng-click="uploadGraph()"></a>
 			</div>
 			<div id="parameters" class="col-lg-3 col-md-4 col-sm-5 col-xs-5">
 				<div class="text-center title">
 					Add Node
-					<button type="button" ng-click="hideParameters()" class="close"><span aria-hidden="true">&times;</span></button>
+					<button type="button" ng-click="showParameters(false)" class="close"><span aria-hidden="true">&times;</span></button>
 				</div>
 
 				<form ng-submit="addNode()" class="form-horizontal" role="form">
@@ -54,7 +60,7 @@
 						<label for="riskInput" class="control-label col-lg-2 col-md-2"> Risk: </label>
 
 						<div class="col-lg-10">
-							<input required ng-model="riskNew" type="number" step="0.1" class="form-control" id="riskInput" placeholder="Risk">
+							<input required ng-model="riskNew" type="number" step="0.1" min="0" max="1" class="form-control" id="riskInput" placeholder="Risk">
 						</div>
 					</div>
 
@@ -147,55 +153,22 @@
 					</div>
 
 				</form>
-				<br>
-
-				<div class="text-center title"> Remove Node </div>
-
-				<br>
-				<form ng-submit="removeNode()" class="form-horizontal" role="form">
-
-					<div class="form-group">
-						<label for="removeID" class="control-label col-lg-2 col-md-2"> Name: </label>
-						<div class="col-lg-10">
-							<input required ng-model="removeNodeName" type="text" class="form-control" id="removeID" placeholder="ID">
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
-							<button type="submit" class="btn btn-block btn-primary">Remove</button>
-						</div>
-					</div>
-				</form>
-				<br>
-
-				<div class="text-center title"> Remove Communication </div>
-
-				<br>
-				<form ng-submit="removeEdge()" class="form-horizontal" role="form">
-
-					<div class="form-group">
-						<label for="removeCom" class="control-label col-lg-2 col-md-2"> Name: </label>
-						<div class="col-lg-10">
-							<input required ng-model="removeComName" type="text" class="form-control" id="removeCom" placeholder="ID">
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
-							<button type="submit" class="btn btn-block btn-primary">Remove</button>
-						</div>
-					</div>
-				</form>
 
 			</div>
-			<div id="graphContainer" ng-click="hideParameters()">
+			<div id="graphContainer" ng-click="showParameters(false)">
+				<div id="restartVisualizer">
+					<button type="button" ng-click="reloadPage()" class="btn btn-block btn-default"> Restart </button>
+				</div>
+
 				<div id="runSimulation">
-					<button type="button" ng-click="runSimulation()" ng-hide="simulationRunning" class="btn btn-block btn-default"> Run Simulation </button>
+					<button type="button" ng-click="runSimulation()" ng-hide="(simulationRunning || simulationStepRunning)" class="btn btn-block btn-default"> Run Visual Simulation </button>
 					<div ng-show="simulationRunning" class="spinner">
 						<div class="bounce1"></div>
 						<div class="bounce2"></div>
 						<div class="bounce3"></div>
+					</div>
+					<div id="step" ng-show="simulationStepRunning">
+						<button type="button" ng-click="simulationStep()" class="btn btn-default"> > </button>
 					</div>
 				</div>
 
@@ -205,20 +178,21 @@
 					</svg>
 				</div>
 
-				<div id="simulationCharts">
-					<button type="button" ng-click="generateCharts()" class="btn btn-block btn-default"> Simulation Charts </button>
+				<div ng-show="(simulationStepRunning)" id="simulationTable">
+					<button type="button" ng-click="generateRuntimeTable()" class="btn btn-block btn-default"> Simulation Table </button>
 				</div>
 
-				<div id="restartVisualizer">
-					<button type="button" ng-click="restartVisualizer()" class="btn btn-block btn-default"> Reset View </button>
+				<div id="resetZoom">
+					<button type="button" ng-click="resetZoom()" class="btn btn-block btn-default"> Reset Zoom </button>
 				</div>
-				<div id="modifier" class="hide">
+
+				<form ng-submit="saveModifications()" id="modifier" class="hide">
 					<div class="title">
 						&nbsp&nbspModifier
-						<button type="button" ng-click="hideModifier()" class="close"><span aria-hidden="true">&times;</span></button>
+						<button type="button" ng-click="showModifier(false)" class="close"><span aria-hidden="true">&times;</span></button>
 					</div>
 					<br>
-					<div ng-show="modifierIsNode" class="col-lg-4 col-md-4 col-lg-offset-1 col-md-offset-1">
+					<div ng-show="modifierIsNode" class="col-lg-3 col-md-3 col-lg-offset-1 col-md-offset-1">
 						<div class="input-group">
 							<span class="input-group-addon"> Name </span>
 							<input disabled ng-model="nodeNameModifier" type="text" class="form-control" placeholder="Name">
@@ -226,21 +200,21 @@
 						<br>
 						<div class="input-group">
 							<span class="input-group-addon"> Description </span>
-							<input required ng-model="nodeDescriptionModifier" type="text" class="form-control" placeholder="Description">
+							<input ng-required="modifierIsNode" ng-model="nodeDescriptionModifier" type="text" class="form-control" placeholder="Description">
 						</div>
 					</div>
-					<div ng-show="modifierIsEdge" class="col-lg-4 col-md-4 col-lg-offset-1 col-md-offset-1">
+					<div ng-show="modifierIsEdge" class="col-lg-3 col-md-3 col-lg-offset-1 col-md-offset-1">
 						<div class="input-group">
-							<span class="input-group-addon"> From </span>
-							<input required ng-model="nodeFromModifier" type="text" class="form-control" placeholder="Orientation Edge From">
+							<span class="input-group-addon"> Id </span>
+							<input disabled ng-model="edgeIdModifier" type="text" class="form-control" placeholder="Edge Id">
 						</div>
 						<br>
 						<div class="input-group">
-							<span class="input-group-addon"> To </span>
-							<input required ng-model="nodeToModifier" type="text" class="form-control" placeholder="Orientation Edge To">
+							<span class="input-group-addon"> Time </span>
+							<input ng-required="modifierIsEdge" ng-model="edgeLabelModifier" type="number" class="form-control" placeholder="Time of communication">
 						</div>
 					</div>
-					<div ng-show="modifierIsNode && nodeTypeModifier !== undefined " class="col-lg-4 col-md-4">
+					<div ng-show="modifierIsNode" class="col-lg-3 col-md-3">
 						<div class="dropup" dropdown>
 							<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
 								{{ nodeTypeModifier }}
@@ -260,40 +234,31 @@
 						<br>
 						<div class="input-group">
 							<span class="input-group-addon"> Provider </span>
-							<input required ng-model="nodeGroupModifier" type="text" class="form-control" placeholder="Node Group">
+							<input ng-required="modifierIsNode" ng-model="nodeGroupModifier" type="text" class="form-control" placeholder="Node Group">
 						</div>
 					</div>
-					<div ng-show="modifierIsNode && nodeMemModifier !== undefined" class="col-lg-2 col-md-2">
+					<div ng-show="modifierIsNode" class="col-lg-2 col-md-2">
 						<div class="input-group">
 							<span class="input-group-addon"> Mem </span>
-							<input required ng-model="nodeMemModifier" type="text" class="form-control" placeholder="Node Group">
+							<input ng-required="modifierIsNode" ng-model="nodeMemModifier" type="number" class="form-control" placeholder="Node Mem">
 						</div>
+						<br>
+						<div class="input-group">
+							<span class="input-group-addon"> Risk </span>
+							<input ng-required="modifierIsNode" ng-model="nodeRiskModifier" step="0.1" min="0" max="1" type="number" class="form-control" placeholder="Node Risk">
+						</div>
+
 					</div>
-					<div class="col-lg-2 col-md-2">
-						<button id="modificationButton" class="btn btn-primary" ng-click="saveModifications()"> Save </button>
+					<div class="col-lg-1 col-md-1">
+						<button type="submit" id="modificationButton" class="btn btn-primary"> Save </button>
 					</div>
-				</div>
+					<div class="col-lg-1 col-md-1">
+						<button type="button" id="deleteButton" ng-click="removeElement()" class="btn btn-danger"> Delete {{ ((modifierIsNode) ? "Node" : "Edge") }} </button>
+					</div>
+				</form>
 			</div>
 			<alert ng-show="alert" class="text-center" type="danger" close="(alert = false)">{{ alertMessage }}</alert>
 		</div>
-
-		<script type="text/ng-template" id="modalCharts.html">
-			<div class="modal-header">
-				<h3 class="modal-title">I'm a modal!</h3>
-			</div>
-			<div class="modal-body">
-				<ul>
-					<li ng-repeat="item in items">
-						<a ng-click="selected.item = item">{{ item }}</a>
-					</li>
-				</ul>
-				Selected: <b>{{ selected.item }}</b>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-primary" ng-click="ok()">OK</button>
-				<button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-			</div>
-		</script>
 
 		<script type="text/javascript" src="files/js/vendor/d3.min.js"></script>
 		<script type="text/javascript" src="files/js/vendor/dagre-d3.min.js"></script>

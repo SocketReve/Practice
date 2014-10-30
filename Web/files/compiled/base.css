@@ -51,20 +51,56 @@ body {
   height: 55px;
   overflow: auto;
   margin: auto;
+  position: absolute;
   top: 0;
   left: 0;
   bottom: 0;
-  right: 0;
   right: auto;
-  text-align: left;
   border-bottom: 1px solid grey;
   border-right: 1px solid grey;
   border-top: 1px solid grey;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
-  position: absolute;
   z-index: 10;
   background-color: white;
+}
+#main #parametersStart:hover {
+  color: #17cf00;
+}
+#main #downloadUpload {
+  font-size: 1.9em;
+  padding: 8px;
+  cursor: pointer;
+  height: 88px;
+  overflow: auto;
+  margin: auto;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: auto;
+  border-bottom: 1px solid grey;
+  border-right: 1px solid grey;
+  border-top: 1px solid grey;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  z-index: 10;
+  background-color: white;
+}
+#main #downloadUpload .glyphicon {
+  display: block;
+  color: #666666;
+}
+#main #downloadUpload .glyphicon:hover {
+  color: #17cf00;
+  text-decoration: none;
+}
+#main #downloadUpload .glyphicon:last-child {
+  padding-top: 18px;
+}
+#main #downloadUpload input {
+  visibility: hidden;
+  position: absolute;
 }
 #main #parameters {
   background-color: white;
@@ -121,7 +157,7 @@ body {
   width: 100%;
   left: 0px;
   top: 0px;
-  background: #333;
+  background: #333333;
 }
 #main #graphContainer #network svg {
   height: 100%;
@@ -247,6 +283,11 @@ body {
 #main #graphContainer #runSimulation button {
   border-radius: 0;
 }
+#main #graphContainer #runSimulation #step button {
+  font-weight: bold;
+  font-size: 1.5em;
+  color: #17cf00;
+}
 #main #graphContainer #runSimulation .spinner {
   margin-top: 10px;
   margin-right: 5px;
@@ -295,20 +336,29 @@ body {
     -webkit-transform: scale(1);
   }
 }
-#main #graphContainer #simulationCharts {
+#main #graphContainer #simulationTable {
   position: absolute;
   left: 0px;
   bottom: 0px;
 }
-#main #graphContainer #simulationCharts button {
+#main #graphContainer #simulationTable button {
   border-radius: 0;
 }
 #main #graphContainer #restartVisualizer {
   position: absolute;
+  left: 0px;
+}
+#main #graphContainer #restartVisualizer button {
+  font-weight: bold;
+  font-size: 1.1em;
+  border-radius: 0;
+}
+#main #graphContainer #resetZoom {
+  position: absolute;
   right: 0px;
   bottom: 0px;
 }
-#main #graphContainer #restartVisualizer button {
+#main #graphContainer #resetZoom button {
   border-radius: 0;
 }
 #main #graphContainer #modifier {
@@ -316,9 +366,9 @@ body {
   border-top: 1px solid #eee;
   background-color: white;
   bottom: 0px;
-  height: 20%;
+  height: 200px;
+  width: 100%;
   z-index: 12;
-  float: none;
 }
 #main #graphContainer #modifier .title {
   font-size: 1.5em;
@@ -329,4 +379,14 @@ body {
 #main #graphContainer #modifier .close {
   padding-right: 10px;
   padding-top: 2px;
+}
+#main #graphContainer #modifier #modificationButton {
+  height: 96px;
+}
+#main #graphContainer #modifier #deleteButton {
+  height: 96px;
+}
+#main #graphContainer #modifier .dropup .dropdown-menu {
+  width: 100%;
+  text-align: center;
 }

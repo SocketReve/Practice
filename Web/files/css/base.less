@@ -9,6 +9,7 @@ html,body {
 @colorCOMP: #ff372a;
 @colorIN: #006aff;
 @colorRES: #e5db3c;
+@colorBackgroundNetwork: #333;
 
 #main {
 	height: 100%;
@@ -63,19 +64,56 @@ html,body {
 		overflow: auto;
 		margin: auto;
 		position: absolute;
-		top: 0; left: 0; bottom: 0; right: 0;
+		top: 0; left: 0; bottom: 0;
 		right: auto;
-
-		text-align: left;
 		border-bottom: 1px solid grey;
 		border-right: 1px solid grey;
 		border-top: 1px solid grey;
 		border-top-right-radius: 5px;
 		border-bottom-right-radius: 5px;
-
-		position: absolute;
 		z-index: 10;
 		background-color: white;
+		&:hover {
+			color: @green;
+		}
+	}
+
+	#downloadUpload {
+		font-size: 1.9em;
+		padding: 8px;
+		cursor: pointer;
+		height: 88px;
+		overflow: auto;
+		margin: auto;
+		position: absolute;
+		top: 0; bottom: 0; right: 0;
+		left: auto;
+		border-bottom: 1px solid grey;
+		border-right: 1px solid grey;
+		border-top: 1px solid grey;
+		border-top-left-radius: 5px;
+		border-bottom-left-radius: 5px;
+		z-index: 10;
+		background-color: white;
+
+		.glyphicon {
+			display: block;
+			color: #666666;
+
+			&:hover {
+				color: @green;
+				text-decoration: none;
+			}
+		}
+
+		.glyphicon:last-child {
+			padding-top: 18px;
+		}
+
+		input {
+			visibility: hidden;
+			position: absolute;
+		}
 	}
 
 	#parameters {
@@ -140,7 +178,7 @@ html,body {
 			width: 100%;
 			left: 0px;
 			top: 0px;
-			background: #333;
+			background: @colorBackgroundNetwork;
 
 			svg {
 				height: 100%;
@@ -290,6 +328,14 @@ html,body {
 				border-radius: 0;
 			}
 
+			#step {
+				button {
+					font-weight: bold;
+					font-size: 1.5em;
+					color: @green;
+				}
+			}
+
 			.spinner {
 				margin-top: 10px;
 				margin-right: 5px;
@@ -337,7 +383,7 @@ html,body {
 			}
 		}
 
-		#simulationCharts {
+		#simulationTable {
 			position: absolute;
 			left: 0px;
 			bottom: 0px;
@@ -347,6 +393,17 @@ html,body {
 		}
 
 		#restartVisualizer {
+			position: absolute;
+			left: 0px;
+
+			button {
+				font-weight: bold;
+				font-size: 1.1em;
+				border-radius: 0;
+			}
+		}
+
+		#resetZoom {
 			position: absolute;
 			right: 0px;
 			bottom: 0px;
@@ -378,6 +435,10 @@ html,body {
 			}
 
 			#modificationButton {
+				height: 96px;
+			}
+
+			#deleteButton {
 				height: 96px;
 			}
 			

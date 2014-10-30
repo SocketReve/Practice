@@ -10,7 +10,8 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		scale = 0.9,
 		scaleOnParameter = 0.8,
 		layout,
-		model;
+		model,
+		initialized = false;
 
 	var Graph = function(nodes, edges) {
 		var defer = $q.defer();
@@ -39,6 +40,8 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 
 		// on DOM ready
 		angular.element(document).ready(function(){
+			initialized = true;
+
 			defer.resolve();
 			// init d3 svg
 			svg = d3.select("svg");
@@ -58,10 +61,10 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 
 			g = new dagreD3.Digraph({ multigraph: true });
 
-			// extend drawEdgesPath
-			var oldDrawEdgesPath = renderer.drawEdgePaths();
+			// extend drawEdgePath
+			var oldDrawEdgePath = renderer.drawEdgePaths();
 			renderer.drawEdgePaths(function(graph, root) {
-				var svgEdges = oldDrawEdgesPath(graph, root);
+				var svgEdges = oldDrawEdgePath(graph, root);
 				svgEdges.attr("id", function(edge){
 					return edge;
 				});
@@ -93,8 +96,22 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 				return svgNodes;
 			});
 
+			// extend drawEdgeLabels
+			var oldDrawEdgeLabels = renderer.drawEdgeLabels();
+			renderer.drawEdgeLabels(function(graph, root) {
+				var svgLabel = oldDrawEdgeLabels(graph, root);
+				svgLabel.attr("id", function(edge) {
+					return edge;
+				});
+				return svgLabel;
+			});
+
+/*
+			g.nodes(nodes);
+			g.edges(edges);
+*/
 			// init nodes
-			for(var i = 0; i < nodes.length; i++) {
+/*			for(var i = 0; i < nodes.length; i++) {
 				g.addNode(camelCase(nodes[i].id.trim()), {
 					labelType: "html",
 					label: getNodeHTMLLabel(nodes[i].id, nodes[i].descr, nodes[i].type, nodes[i].provider, nodes[i].mem, nodes[i].risk, nodes[i].func),
@@ -115,6 +132,29 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 					to: camelCase(edges[i].v),
 					highlight: false
 				});
+			}*/
+
+			for(var i = 0; i < nodes.length; i++) {
+				g.addNode(nodes[i].id, {
+					labelType: "html",
+					label: getNodeHTMLLabel(nodes[i].id, nodes[i].value.descr, nodes[i].value.type, nodes[i].value.provider.toUpperCase(), nodes[i].value.mem, nodes[i].value.risk, nodes[i].value.func),
+					descr: nodes[i].value.descr,
+					type: nodes[i].value.type,
+					provider: nodes[i].value.provider.toUpperCase(),
+					mem: parseInt(nodes[i].value.mem),
+					risk: parseFloat(nodes[i].value.risk),
+					func: nodes[i].value.func,
+					highlight: nodes[i].value.highlight
+				});
+			}
+
+			for(var i = 0; i < edges.length; i++) {
+				g.addEdge(edges[i].id, edges[i].value.from, edges[i].value.to, {
+					label: edges[i].value.label,
+					from: edges[i].value.from,
+					to: edges[i].value.to,
+					highlight: edges[i].value.highlight
+				});
 			}
 
 			renderer.layout(layout);
@@ -130,8 +170,46 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		return defer.promise;
 	};
 
+	Graph.isInitialized = function() {
+		return initialized;
+	};
+
 	Graph.getRawNode = function(node) {
 		return g.node(node);
+	};
+
+	Graph.getRawEdge = function(edge) {
+		return g.edge(edge);
+	};
+
+	Graph.getEdges = function() {
+		var edgesName = g.edges();
+		var edges = [];
+
+		edgesName.forEach(function(e) {
+			edges.push(	{
+							id: e,
+							value: g.edge(e)
+						});
+		});
+		return edges;
+	};
+
+	Graph.getNodes = function() {
+		var nodesName = g.nodes();
+		var nodes = [];
+
+		nodesName.forEach(function(u){
+			nodes.push(	{
+							id: u,
+							value: g.node(u)
+						});
+		});
+		return nodes;
+	};
+
+	Graph.setEdgeLabel = function(id, label) {
+		g.edge(id).label = label.toString();
 	};
 
 	Graph.setNodeDescription = function(id, description) {
@@ -142,7 +220,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 
 	Graph.setNodeMem = function(id, mem) {
 		var temp = g.node(id);
-		g.node(id).mem = mem;
+		g.node(id).mem = parseInt(mem);
 		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, mem, temp.risk, temp.func);
 	};
 
@@ -164,6 +242,12 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, temp.risk, func);
 	};
 
+	Graph.setNodeRisk = function(id, risk) {
+		var temp = g.node(id);
+		g.node(id).risk = parseFloat(risk);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, risk, temp.func);
+	};
+
 	Graph.resize = function() {
 		// allineo al centro
 
@@ -177,7 +261,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		zoom.translate(translate);
 		zoom.scale(zoomScale);
 		zoom.event(svg.transition().duration(500));
-	}
+	};
 
 	Graph.addNode = function(id, description, type, provider, mem, risk, func) {
 		try {
@@ -196,7 +280,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			throw { message: "Node already in graph or input not valid" };
 		}
 
-		this.redesign();
+		Graph.redesign();
 
 		$timeout(function(){
 			Graph.scale("parameters");
@@ -215,24 +299,26 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			throw { message: "Edge is already in the graph or input not valid" };
 		}
 
-		this.redesign();
-		/*$timeout(function(){
+		Graph.redesign();
+		$timeout(function(){
 			Graph.resize();
-		},500);*/
+		},500);
 	};
 
 	Graph.removeNode = function(id) {
 		try {
+			/*if(g.nodes().length == 1) {
+				throw null;
+			}*/
 			g.delNode(id);
 		} catch(err) {
-			throw { message: "Node not exists or input not valid" };
+			throw { message: "Node not exists, input not valid. Graph cannot exits without nodes" };
 		}
-		this.redesign();
-/*
+		Graph.redesign();
+
 		$timeout(function(){
 			Graph.resize();
 		},500);
-*/
 	};
 
 	Graph.removeEdge = function(id) {
@@ -241,7 +327,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		} catch(err) {
 			throw { message: "Communication not exists" };
 		}
-		this.redesign();
+		Graph.redesign();
 /*
 		$timeout(function(){
 			Graph.resize();
@@ -253,7 +339,6 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		renderer.transition(function (selection) {
 			return selection.transition().duration(500);
 		});
-
 		model = renderer.run(g, d3.select("svg g g"));
 	};
 
@@ -273,8 +358,9 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			translate = [(width/2) - ((graphWidth*zoomScale)/2)+10, (height/2) - ((graphHeight*zoomScale)/2)];
 		}
 		else if (scaleMod == "parameters") {
+			//var factorScale = (graphWidth * 1.5 > width) ? 3 :
 			var zoomScale = Math.min(width / graphWidth * scaleOnParameter, height / graphHeight * scaleOnParameter);
-			translate = [(graphWidth / 3), (height / 2) - ((graphHeight * zoomScale) / 2)];
+			translate = [(graphWidth * 1.5 > width) ? (graphWidth / 3) : (graphWidth), (height / 2) - ((graphHeight * zoomScale) / 2)];
 		}
 
 		zoom.translate(translate);
@@ -326,16 +412,13 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 	};
 
 	Graph.resetHighlight = function() {
-		var nodes = document.querySelectorAll("rect");
-		var edges = document.querySelectorAll(".edgePath");
+		g.nodes().forEach(function(u){
+			g.node(u).highlight = false;
+		});
 
-		for(var i = 0; i < nodes.length; i++) {
-			angular.element(nodes[i]).removeClass("green");
-		}
-
-		for(var i = 0; i < edges.length; i++) {
-			angular.element(edges[i]).removeClass("green");
-		}
+		g.edges().forEach(function(e){
+			g.edge(e).highlight = false;
+		});
 	};
 
 	function getNodeHTMLLabel(id, description, type, provider, mem, risk, func) {

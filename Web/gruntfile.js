@@ -2,14 +2,14 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		uglify: {
 			options: {
-				banner: '/*! farmacia Grunt <%= grunt.template.today("dd-mm-yyyy") %> */\n',
+				banner: '/*! Practice Grunt <%= grunt.template.today("dd-mm-yyyy") %> */\n',
 				mangle: false
 			},
 			dist: {
 				files: {
 					"files/compiled/base.min.js" : ["files/js/base.js"],
 					"files/compiled/angular-resource.min.js" : ["files/js/providers/*.js", "files/js/directives/*.js", "files/js/controllers/*.js", "files/js/filters/*.js"]
-				},
+				}
 			}
 		},
 
@@ -33,22 +33,22 @@ module.exports = function(grunt) {
 
 		watch: {
 			options: {
-				livereload: true,
+				livereload: true
 			},
 
 			scripts: {
 				files: ["files/js/base.js", "files/js/controllers/*.js", "files/js/directives/*.js", "files/js/providers/*.js", "files/js/filters/*.js"],
-				tasks: ["uglify"],
+				tasks: ["uglify"]
 			},
 
 			css: {
 				files: "files/css/**",
-				tasks: ["less","cssmin"],
+				tasks: ["less","cssmin"]
 			},
 
 			html: {
 				files: ["*.htm", "partial/*.htm"],
-				taks: []
+				tasks: []
 			}
 		}
 	});

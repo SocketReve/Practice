@@ -4,10 +4,9 @@
 
 angular.module("PracticeSimulator").factory("Practice", function($q, $interval, Graph2, PracticeCOMPFunctions) {
 	// factory scope
-	var nodes, instants, maxTime, rawElements;
+	var nodes, instants, maxTime, rawElements, interval, actualTimeSimulation, matrixNodePerInstants;
 
 	var Practice = function() {
-		console.log(PracticeCOMPFunctions);
 		maxTime = 0;
 
 		// template for nodes object:
@@ -27,16 +26,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 			 }
 		 }*/
 
-		nodes = {
-			length: function() {
-				var size = 0;
-				var key;
-				for (key in this) {
-					if (this.hasOwnProperty(key)) size++;
-				}
-				return size - 1; // -1 because length is at the same time a property
-			}
-		};
+		nodes = {};
 
 		// template for instants object:
 		/*{
@@ -48,9 +38,11 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 		 }*/
 		instants = {};
 
+		// in this matrix (table) there are nodes in every instants. this can permit to build runtime table
+		matrixNodePerInstants = [];
+
 		// converto in modo indicizzato = dizionario
 		rawElements = Graph2.getElements();
-		console.log(rawElements);
 
 		for (var i = 0; i < rawElements.nodes.length; i++) {
 			nodes[rawElements.nodes[i].id] = {
@@ -85,8 +77,6 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				FUNC: rawElements.nodes[i].value.func
 			}
 		}
-
-		console.log(nodes);
 
 		for (var i = 0; i < rawElements.edges.length; i++) {
 			nodes[rawElements.edges[i].v].IN[rawElements.edges[i].u] = true;
@@ -124,6 +114,22 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 		}
 	};
 
+	Practice.getNodes = function() {
+		return nodes;
+	};
+
+	Practice.getInstants = function() {
+		return instants;
+	};
+
+	Practice.getTableNodePerInstants = function() {
+		return matrixNodePerInstants;
+	};
+
+	/*Practice.getMapArrayOfMemoriesOutput = function() {
+		return mapArrayOfMemoriesOutput;
+	}*/
+
 	Practice.checkGraph = function() {
 		for( key in nodes ) {
 			if(nodes[key].TYPE == "COMP" && nodes[key].IN.length() <= 1) { // check COMP nodes have at least 2 edge ingress
@@ -132,27 +138,48 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 			if(nodes[key].TYPE == "RES" && nodes[key].OUT.length() > 0) { // check RES nodes doesn't have exit edge
 				throw { message: "RES node '"+ key + "' can't have any exit communication" };
 			}
+			// nodi di ingresso senza ingresso
 		}
 	};
 
-	Practice.runSimulation = function() {
+	Practice.runIntervalSimulation = function(intervalTime) {
 		var defer = $q.defer();
-		var actualTimeSimulation = 0;
+		actualTimeSimulation = 0;
 
 		// reset Highlight
 		Graph2.resetHighlight();
 
-		var interval = $interval(function() {
+		interval = $interval(function() {
+			Practice.simulationStep(defer);
+		}, intervalTime);
+
+		return defer.promise;
+	};
+
+	Practice.runStepSimulation = function() {
+		actualTimeSimulation = 0;
+
+		// reset Highlight
+		Graph2.resetHighlight();
+
+		Practice.simulationStep();
+	};
+
+	Practice.simulationStep = function(defer) {
+		try {
 			// prec nodes --> no highlight
 			if (actualTimeSimulation > 0) {
-				for(var i = 0; i < instants[actualTimeSimulation - 1].length; i++) {
+				for (var i = 0; i < instants[actualTimeSimulation - 1].length; i++) {
 					Graph2.highlightEdge(instants[actualTimeSimulation - 1][i].EDGE, false);
 					Graph2.highlightNode(instants[actualTimeSimulation - 1][i].IN, false);
 					Graph2.highlightNode(instants[actualTimeSimulation - 1][i].OUT, false);
 				}
 			}
-
-			for(var i = 0; i < instants[actualTimeSimulation].length; i++) {
+		} catch (err) {
+			console.log("SIMULATION TIMER: Time step missing in de-highlighting")
+		}
+		try {
+			for (var i = 0; i < instants[actualTimeSimulation].length; i++) {
 				Graph2.highlightEdge(instants[actualTimeSimulation][i].EDGE, true);
 				Graph2.highlightNode(instants[actualTimeSimulation][i].IN, true);
 				Graph2.highlightNode(instants[actualTimeSimulation][i].OUT, true);
@@ -164,7 +191,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 			// dato che è trattato come un tipo 'map' = dizionario, nel caso in cui l'indice nell'oggetto sia già presente, aggiunge all'array un nuovo valore
 			// in input che andrà poi successivamente calcolato con una delle funzioni disponibili. Nel caso non sia presente, crea un nuovo array e
 			// ci mette il nuovo valore
-			for(var i = 0; i < instants[actualTimeSimulation].length; i++) {
+			for (var i = 0; i < instants[actualTimeSimulation].length; i++) {
 				try {
 					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push(nodes[instants[actualTimeSimulation][i].IN].MEM.value);
 				}
@@ -176,8 +203,8 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 			// in questo ciclo for scandisco i vari nodi e, nel caso di nodo COMP, eseguo la funzione annessa.
 			// per fare una cosa figa ho mappato stringa <-> valore attraverso mapComputationalFunctions
 			// nel caso non sia un nodo COMP, ne conseguo che sia per forza un nodo RES pertanto metto in memoria i valori in ingresso
-			for ( node in mapArrayOfMemoriesOutput ) {
-				if(typeof PracticeCOMPFunctions[nodes[node].FUNC] == "function") { // in case of COMP node --> FUNC exist
+			for (node in mapArrayOfMemoriesOutput) {
+				if (typeof PracticeCOMPFunctions[nodes[node].FUNC] == "function") { // in case of COMP node --> FUNC exist
 					var temp = PracticeCOMPFunctions[nodes[node].FUNC](mapArrayOfMemoriesOutput[node]);
 					nodes[node].MEM.array.push(temp); // change local mem (LOGIC)
 					nodes[node].MEM.value = PracticeCOMPFunctions[nodes[node].FUNC](nodes[node].MEM.array);
@@ -189,17 +216,27 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				}
 			}
 
+
+
 			Graph2.redesign(); // I need to redesign after every modification on graph
 
-			if(actualTimeSimulation == maxTime) {
-				$interval.cancel(interval);
+		} catch (err) {
+			console.log("SIMULATION TIMER: Time step missing")
+		}
+
+		matrixNodePerInstants.push(angular.copy(nodes));
+
+		if (actualTimeSimulation == maxTime+1) {
+			$interval.cancel(interval);
+			if(typeof defer != "undefined") {
 				defer.resolve();
 			}
+			else {
+				return false;
+			}
+		}
 
-			actualTimeSimulation++;
-		}, 1000);
-
-		return defer.promise;
+		actualTimeSimulation++;
 	};
 
 	return Practice;
