@@ -11,6 +11,7 @@
 		<title> Practice Network Simulator </title>
 	</head>
 	<body>
+		<input type="file" />
 		<div id="main" ng-controller="PracticeMainController">
 			<div class="text-center page-header">
 				<h1><span id="backendConnectionStyle" class="glyphicon glyphicon-cloud"></span> PRACTICE <small>Network Simulator</small></h1>
@@ -22,7 +23,6 @@
 			</div>
 
 			<div id="downloadUpload" >
-				<input type="file" />
 				<a title="Download" class="glyphicon glyphicon-cloud-download" ng-click="downloadGraph($event)"></a>
 				<a title="Upload" class="glyphicon glyphicon-cloud-upload" ng-click="uploadGraph()"></a>
 			</div>
@@ -160,30 +160,35 @@
 					<button type="button" ng-click="reloadPage()" class="btn btn-block btn-default"> Restart </button>
 				</div>
 
-				<div id="runSimulation">
-					<button type="button" ng-click="runSimulation()" ng-hide="(simulationRunning || simulationStepRunning)" class="btn btn-block btn-default"> Run Visual Simulation </button>
+				<div id="simulationButtons">
+					<button ng-show="isGraphInitialized() && !(simulationRunning || simulationStepRunning)" type="button" ng-click="checkGraph()" class="btn btn-block btn-default"> Check Graph Coherence </button>
+					<button ng-show="isGraphInitialized() && !(simulationRunning || simulationStepRunning)" type="button" ng-click="runSimulation()" class="btn btn-block btn-default"> Run Visual Simulation </button>
 					<div ng-show="simulationRunning" class="spinner">
 						<div class="bounce1"></div>
 						<div class="bounce2"></div>
 						<div class="bounce3"></div>
 					</div>
-					<div id="step" ng-show="simulationStepRunning">
-						<button type="button" ng-click="simulationStep()" class="btn btn-default"> > </button>
-					</div>
+
+					<button ng-show="simulationStepRunning" id="step" type="button" ng-click="simulationStep()" class="btn btn-default"> > </button>
 				</div>
 
-				<div id="network" >
+				<div id="network">
+					<div id="firstUse" ng-hide="isGraphInitialized()">
+						Upload Graph or Add a New Node
+					</div>
+
 					<svg>
 						<g></g>
 					</svg>
 				</div>
 
-				<div ng-show="(simulationStepRunning)" id="simulationTable">
-					<button type="button" ng-click="generateRuntimeTable()" class="btn btn-block btn-default"> Simulation Table </button>
+				<div id="simulationStatistics">
+					<button ng-show="isGraphInitialized()" type="button" ng-click="generatePowerSet()" class="btn btn-block btn-default"> Simulation Risk Set </button>
+					<button ng-show="simulationStepRunning" type="button" ng-click="generateRuntimeTable()" class="btn btn-block btn-default"> Simulation Table </button>
 				</div>
 
 				<div id="resetZoom">
-					<button type="button" ng-click="resetZoom()" class="btn btn-block btn-default"> Reset Zoom </button>
+					<button ng-show="isGraphInitialized()" type="button" ng-click="resetZoom()" class="btn btn-block btn-default"> Reset Zoom </button>
 				</div>
 
 				<form ng-submit="saveModifications()" id="modifier" class="hide">
@@ -257,7 +262,7 @@
 					</div>
 				</form>
 			</div>
-			<alert ng-show="alert" class="text-center" type="danger" close="(alert = false)">{{ alertMessage }}</alert>
+			<alert ng-show="alert" class="text-center" type="{{ alertType }}" close="(alert = false)">{{ alertMessage }}</alert>
 		</div>
 
 		<script type="text/javascript" src="files/js/vendor/d3.min.js"></script>
@@ -266,7 +271,8 @@
 		<script type="text/javascript" src="files/js/vendor/angular-animate.min.js"></script>
 		<script type="text/javascript" src="files/js/vendor/angular-sanitize.min.js"></script>
 		<script type="text/javascript" src="files/js/vendor/bootstrap.js"></script>
-		<script type="text/javascript" src="files/js/vendor/loading-bar.min.js"></script>
+		<script type="text/javascript" src="files/js/vendor/canvasjs.min.js"></script>
+		<!--<script type="text/javascript" src="files/js/vendor/loading-bar.min.js"></script>-->
 
 		<!-- main -->
 		<script type="text/javascript" src="files/compiled/base.min.js"></script>

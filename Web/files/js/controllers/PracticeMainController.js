@@ -163,6 +163,8 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		bindCustomEvents();
 	});*/
 
+	bindCustomEvents();
+
 	// events for modify Graph2
 	$scope.addNode = function() {
 		if(Graph2.isInitialized() == false) {
@@ -210,6 +212,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				customAlert("Not compiled all input form");
 			}
 		}
+		bindCustomEvents();
 	};
 
 	$scope.addCommunication = function() {
@@ -229,6 +232,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		else {
 			customAlert("Not compiled all input form");
 		}
+		bindCustomEvents();
 	};
 
 	$scope.showModifier = function(condition) {
@@ -243,12 +247,16 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.showParameters = function(condition) {
 		if(condition == true) {
 			angular.element(document.getElementById("parameters")).addClass("slideRight");
-			Graph2.scale("parameters");
+			if(Graph2.isInitialized()) {
+				Graph2.scale("parameters");
+			}
 		}
 		else {
 			if(angular.element(document.getElementById("parameters")).hasClass("slideRight")) {
 				angular.element(document.getElementById("parameters")).removeClass("slideRight");
-				Graph2.scale("original");
+				if(Graph2.isInitialized()) {
+					Graph2.scale("original");
+				}
 			}
 		}
 	};
@@ -275,10 +283,10 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	};
 
 	$scope.uploadGraph = function() {
-		var input = document.querySelector("#downloadUpload>input");
+		var input = document.querySelector("input");
 		input.click();
 
-		input.onchange = function(event) {
+		input.onchange = function() {
 			var file = input.files[0];
 			var reader = new FileReader();
 			reader.readAsText(file);
@@ -289,13 +297,35 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 					bindCustomEvents();
 				});
 			};
+			// reset every running simulation
+			$scope.simulationRunning = false;
+			$scope.simulationStepRunning = false;
+		};
+	};
+
+	$scope.isGraphInitialized = function() {
+		return Graph2.isInitialized();
+	};
+
+	$scope.checkGraph = function() {
+		if(Graph2.isInitialized()) {
+			try {
+				Practice();
+				Practice.checkGraph();
+				customAlert({ type: "success", message: "Everything OK" })
+			}
+			catch (err) {
+				customAlert(err);
+			}
+		}
+		else {
+			customAlert({ message: "Graph not initialized" })
 		}
 	};
 
 	$scope.runSimulation = function() {
-		Graph2.resize();
-
 		try {
+			Graph2.resize();
 			Practice();
 			Practice.checkGraph();
 
@@ -364,6 +394,20 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		});
 	};
 
+	$scope.generatePowerSet = function() {
+		var modalInstance = $modal.open({
+			templateUrl: 'partial/ModalChartPartial.htm',
+			controller: "PracticeChartsController",
+			size: "lg",
+			windowClass: "modalChart"
+		});
+
+		modalInstance.result.then(function (result) {
+		}, function () {
+			console.log('Chart Modal dismissed at: ' + new Date());
+		});
+	};
+
 	$scope.saveModifications = function() {
 		if($scope.modifierIsNode) {
 			try {
@@ -403,6 +447,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				customAlert(err);
 			}
 		}
+		bindCustomEvents();
 		$scope.showModifier(false);
 	};
 
@@ -410,6 +455,13 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		console.log(message);
 		$scope.alert = true;
 		$scope.alertMessage = message.message;
+
+		if(message.type == "success") {
+			$scope.alertType = "success";
+		}
+		else {
+			$scope.alertType = "danger";
+		}
 
 		$timeout(function() {
 			$scope.alert = false;

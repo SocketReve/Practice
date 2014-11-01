@@ -46,6 +46,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 
 		for (var i = 0; i < rawElements.nodes.length; i++) {
 			nodes[rawElements.nodes[i].id] = {
+				ID: rawElements.nodes[i].id, // i need it for power set
 				IN: {
 					length: function() {
 						var size = 0;
@@ -132,13 +133,15 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 
 	Practice.checkGraph = function() {
 		for( key in nodes ) {
-			if(nodes[key].TYPE == "COMP" && nodes[key].IN.length() <= 1) { // check COMP nodes have at least 2 edge ingress
+			if(nodes[key].TYPE == "COMP" && nodes[key].IN.length() <= 1) { // check that COMP nodes have at least 2 edge ingress
 				throw { message: "COMP node '"+ key + "' not have at least 2 input edges" };
 			}
-			if(nodes[key].TYPE == "RES" && nodes[key].OUT.length() > 0) { // check RES nodes doesn't have exit edge
+			if(nodes[key].TYPE == "RES" && nodes[key].OUT.length() > 0) { // check that RES nodes doesn't have exit edge
 				throw { message: "RES node '"+ key + "' can't have any exit communication" };
 			}
-			// nodi di ingresso senza ingresso
+			if(nodes[key].TYPE == "IN" && nodes[key].IN.length() > 0) { // check that IN nodes doesn't have input edge
+				throw { message: "IN node '"+ key + "' can't have any input edges" };
+			}
 		}
 	};
 

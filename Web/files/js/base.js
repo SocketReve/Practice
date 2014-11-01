@@ -3,5 +3,5 @@
  */
 
 (function() {
-	angular.module("PracticeSimulator", [ "ngAnimate", "ui.bootstrap", "angular-loading-bar", "ngSanitize"]);
+	angular.module("PracticeSimulator", [ "ngAnimate", "ui.bootstrap", /*"angular-loading-bar",*/ "ngSanitize"]);
 })();

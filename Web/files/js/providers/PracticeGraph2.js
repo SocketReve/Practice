@@ -7,7 +7,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		renderer,
 		zoom,
 		svg,
-		scale = 0.9,
+		scale = 0.85,
 		scaleOnParameter = 0.8,
 		layout,
 		model,
@@ -56,8 +56,8 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 
 			layout = dagreD3.layout()
 							.nodeSep(70)
-							.rankSep(120)
-							.rankDir("LR");
+							.rankSep(100);
+							//.rankDir("LR");
 
 			g = new dagreD3.Digraph({ multigraph: true });
 
@@ -105,34 +105,6 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 				});
 				return svgLabel;
 			});
-
-/*
-			g.nodes(nodes);
-			g.edges(edges);
-*/
-			// init nodes
-/*			for(var i = 0; i < nodes.length; i++) {
-				g.addNode(camelCase(nodes[i].id.trim()), {
-					labelType: "html",
-					label: getNodeHTMLLabel(nodes[i].id, nodes[i].descr, nodes[i].type, nodes[i].provider, nodes[i].mem, nodes[i].risk, nodes[i].func),
-					descr: nodes[i].descr,
-					type: nodes[i].type,
-					provider: nodes[i].provider.toUpperCase(),
-					mem: parseInt(nodes[i].mem),
-					risk: parseFloat(nodes[i].risk),
-					func: nodes[i].func,
-					highlight: false
-				});
-			}
-
-			for(var i = 0; i < edges.length; i++) {
-				g.addEdge(camelCase(edges[i].u) +"-"+ camelCase(edges[i].v) +"-"+ edges[i].time.toString(), edges[i].u, edges[i].v, {
-					label: edges[i].time.toString(),
-					from: camelCase(edges[i].u),
-					to: camelCase(edges[i].v),
-					highlight: false
-				});
-			}*/
 
 			for(var i = 0; i < nodes.length; i++) {
 				g.addNode(nodes[i].id, {
@@ -368,16 +340,6 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		zoom.event(svg.transition().duration(500));
 	};
 
-/*	Graph.highlightByTime = function(time, activate) {
-		var edges = document.querySelectorAll(".edgePath[time='" + time.toString() + "']");
-
-		for (var i = 0; i < edges.length; i++) {
-			this.highlightEdge(edges[i], activate);
-			this.highlightNode(edges[i].getAttribute("to"), activate);
-			this.highlightNode(edges[i].getAttribute("from"), activate);
-		}
-	};*/
-
 	Graph.highlightEdge = function(edge, activate) {
 		if(activate == true) {
 			g.edge(edge).highlight = true;
@@ -385,21 +347,6 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		else {
 			g.edge(edge).highlight = false;
 		}
-
-/*		// if is edge already element --> transform
-		if(typeof edge != "string") {
-			var edgeSelected = angular.element(edge);
-		}
-		else {
-			var edgeSelected = angular.element(document.getElementById(edge));
-		}
-
-		if(activate == true) {
-			edgeSelected.addClass("green");
-		}
-		else {
-			edgeSelected.removeClass("green");
-		}*/
 	};
 
 	Graph.highlightNode = function(node, activate) {
