@@ -5,6 +5,49 @@ body {
   padding: 0;
   font-family: "Helvetica Neue" !important;
 }
+body > input {
+  visibility: hidden;
+  position: absolute;
+  width: 1px;
+  font-size: 0;
+  word-spacing: -0.23em;
+}
+.modalChart .modal-dialog,
+.modalChart .modal-content {
+  height: 95%;
+}
+.modalChart .modal-body {
+  height: 91%;
+}
+.modalChart #practice-scatter-plot {
+  width: 100%;
+  height: 95%;
+}
+.modalChart .name {
+  float: right;
+  color: #27aae1;
+}
+.modalChart .axis {
+  fill: none;
+  stroke: #AAA;
+  stroke-width: 1px;
+}
+.modalChart text {
+  stroke: none;
+  fill: #666666;
+  font-size: .6em;
+  font-family: "Helvetica Neue";
+}
+.modalChart .label {
+  fill: #414241;
+}
+.modalChart .node {
+  cursor: pointer;
+}
+.modalChart .dot {
+  opacity: .7;
+  cursor: pointer;
+}
 #main {
   height: 100%;
   width: 100%;
@@ -98,10 +141,6 @@ body {
 #main #downloadUpload .glyphicon:last-child {
   padding-top: 18px;
 }
-#main #downloadUpload input {
-  visibility: hidden;
-  position: absolute;
-}
 #main #parameters {
   background-color: white;
   border-right: 1px solid #eee;
@@ -158,6 +197,15 @@ body {
   left: 0px;
   top: 0px;
   background: #333333;
+}
+#main #graphContainer #network #firstUse {
+  width: 350px;
+  height: 50px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -25px 0 0 -175px;
+  font-size: 1.7em;
 }
 #main #graphContainer #network svg {
   height: 100%;
@@ -275,26 +323,30 @@ body {
   stroke-width: 3px !important;
   stroke: #17cf00 !important;
 }
-#main #graphContainer #runSimulation {
+#main #graphContainer #simulationButtons {
   position: absolute;
   right: 0px;
   z-index: 12;
 }
-#main #graphContainer #runSimulation button {
+#main #graphContainer #simulationButtons button {
   border-radius: 0;
+  transition: all linear 0.5s;
 }
-#main #graphContainer #runSimulation #step button {
+#main #graphContainer #simulationButtons button.ng-hide {
+  opacity: 0;
+}
+#main #graphContainer #simulationButtons #step {
   font-weight: bold;
   font-size: 1.5em;
   color: #17cf00;
 }
-#main #graphContainer #runSimulation .spinner {
+#main #graphContainer #simulationButtons .spinner {
   margin-top: 10px;
   margin-right: 5px;
   width: 100px;
   text-align: center;
 }
-#main #graphContainer #runSimulation .spinner > div {
+#main #graphContainer #simulationButtons .spinner > div {
   width: 23px;
   height: 23px;
   background-color: #848284;
@@ -306,11 +358,11 @@ body {
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
 }
-#main #graphContainer #runSimulation .spinner .bounce1 {
+#main #graphContainer #simulationButtons .spinner .bounce1 {
   -webkit-animation-delay: -0.32s;
   animation-delay: -0.32s;
 }
-#main #graphContainer #runSimulation .spinner .bounce2 {
+#main #graphContainer #simulationButtons .spinner .bounce2 {
   -webkit-animation-delay: -0.16s;
   animation-delay: -0.16s;
 }
@@ -336,13 +388,17 @@ body {
     -webkit-transform: scale(1);
   }
 }
-#main #graphContainer #simulationTable {
+#main #graphContainer #simulationStatistics {
   position: absolute;
   left: 0px;
   bottom: 0px;
 }
-#main #graphContainer #simulationTable button {
+#main #graphContainer #simulationStatistics button {
   border-radius: 0;
+  transition: all linear 0.5s;
+}
+#main #graphContainer #simulationStatistics button.ng-hide {
+  opacity: 0;
 }
 #main #graphContainer #restartVisualizer {
   position: absolute;
@@ -360,6 +416,10 @@ body {
 }
 #main #graphContainer #resetZoom button {
   border-radius: 0;
+  transition: all linear 0.5s;
+}
+#main #graphContainer #resetZoom button.ng-hide {
+  opacity: 0;
 }
 #main #graphContainer #modifier {
   position: absolute;
