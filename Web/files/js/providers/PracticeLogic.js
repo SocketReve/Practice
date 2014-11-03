@@ -42,7 +42,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 		matrixNodePerInstants = [];
 
 		// converto in modo indicizzato = dizionario
-		rawElements = Graph2.getElements();
+		rawElements = { nodes: Graph2.getNodes(), edges: Graph2.getEdges() };
 
 		for (var i = 0; i < rawElements.nodes.length; i++) {
 			nodes[rawElements.nodes[i].id] = {
@@ -80,8 +80,8 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 		}
 
 		for (var i = 0; i < rawElements.edges.length; i++) {
-			nodes[rawElements.edges[i].v].IN[rawElements.edges[i].u] = true;
-			nodes[rawElements.edges[i].u].OUT[rawElements.edges[i].v] = true;
+			nodes[rawElements.edges[i].value.to].IN[rawElements.edges[i].value.from] = true;
+			nodes[rawElements.edges[i].value.from].OUT[rawElements.edges[i].value.to] = true;
 		}
 		// calculate max time
 		for(var i = 0; i < rawElements.edges.length; i++) {
@@ -97,15 +97,15 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				if(parseInt(rawElements.edges[k].value.label) == j) {
 					try {
 						instants[j].push({
-							IN: rawElements.edges[k].u,
-							OUT: rawElements.edges[k].v,
+							IN: rawElements.edges[k].value.from,
+							OUT: rawElements.edges[k].value.to,
 							EDGE: rawElements.edges[k].id
 						});
 					} catch (err) { // if not present, create a new one
 						instants[j] = [];
 						instants[j].push({
-							IN: rawElements.edges[k].u,
-							OUT: rawElements.edges[k].v,
+							IN: rawElements.edges[k].value.from,
+							OUT: rawElements.edges[k].value.to,
 							EDGE: rawElements.edges[k].id
 						});
 					}

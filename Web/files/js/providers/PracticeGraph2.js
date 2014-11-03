@@ -314,10 +314,6 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		model = renderer.run(g, d3.select("svg g g"));
 	};
 
-	Graph.getElements = function() {
-		return dagreD3.json.encode(g);
-	};
-
 	Graph.scale = function(scaleMod) {
 		var translate;
 		var graphWidth = model.graph().width + 5;
@@ -330,9 +326,12 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			translate = [(width/2) - ((graphWidth*zoomScale)/2)+10, (height/2) - ((graphHeight*zoomScale)/2)];
 		}
 		else if (scaleMod == "parameters") {
+			console.log(graphWidth);
+			console.log(width);
 			//var factorScale = (graphWidth * 1.5 > width) ? 3 :
 			var zoomScale = Math.min(width / graphWidth * scaleOnParameter, height / graphHeight * scaleOnParameter);
-			translate = [(graphWidth * 1.5 > width) ? (graphWidth / 3) : (graphWidth), (height / 2) - ((graphHeight * zoomScale) / 2)];
+			var parametersWidth = document.getElementById("parameters").offsetWidth;
+			translate = [parametersWidth + 20, (height / 2) - ((graphHeight * zoomScale) / 2)];
 		}
 
 		zoom.translate(translate);

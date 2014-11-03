@@ -180,6 +180,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 					highlight: false
 				}
 			}];
+
 			Graph2(nodes, []).then(function(){
 				bindCustomEvents();
 			});
@@ -203,6 +204,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 					$scope.providerNodeNew = "";
 					$scope.memNew = 0;
 					$scope.riskNew = 0.1;
+					bindCustomEvents();
 				}
 				catch (err) {
 					customAlert(err);
@@ -212,7 +214,6 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				customAlert("Not compiled all input form");
 			}
 		}
-		bindCustomEvents();
 	};
 
 	$scope.addCommunication = function() {
@@ -248,7 +249,9 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		if(condition == true) {
 			angular.element(document.getElementById("parameters")).addClass("slideRight");
 			if(Graph2.isInitialized()) {
-				Graph2.scale("parameters");
+				$timeout(function() { // wait until parameters div is open
+					Graph2.scale("parameters");
+				},300);
 			}
 		}
 		else {
@@ -271,7 +274,13 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 
 	$scope.downloadGraph = function($event) {
 		try {
-			var json = JSON.stringify({ nodes: Graph2.getNodes(), edges: Graph2.getEdges() });
+			var elements = angular.copy({ nodes: Graph2.getNodes(), edges: Graph2.getEdges() });
+			// clean nodes from html label
+			for(var i = 0; i < elements.nodes.length; i++) {
+				delete elements.nodes[i].value.label;
+				delete elements.nodes[i].value.labelType;
+			}
+			var json = JSON.stringify(elements);
 			var blob = new Blob([json], {type: "application/json"});
 			var url = URL.createObjectURL(blob);
 
@@ -474,7 +483,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		var nodesEvents = document.getElementsByClassName("node");
 
 		for(var i = 0; i < nodesEvents.length; i++) {
-			angular.element(nodesEvents[i]).on("click", function() {
+			angular.element(nodesEvents[i]).off().on("click", function() { // rebind
 				$scope.modifierIsNode = true;
 				$scope.modifierIsEdge = false;
 
@@ -495,7 +504,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		var edgesEvents = document.getElementsByClassName("edgeLabel");
 
 		for(var i = 0; i < edgesEvents.length; i++) {
-			angular.element(edgesEvents[i]).on("click", function() {
+			angular.element(edgesEvents[i]).off().on("click", function() {
 				$scope.modifierIsNode = false;
 				$scope.modifierIsEdge = true;
 
@@ -509,21 +518,18 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		}
 
 		// bind escape key for remove modifier div
+		angular.element(document).off("keyup"); // rebind
 		angular.element(document).on("keyup", function(e){
 			if(e.keyCode == 27) {
 				$scope.showParameters(false);
 				$scope.showModifier(false);
 			}
-			else if(e.keyCode == 83) {
-				if($scope.simulationStepRunning == true) {
-					$scope.simulationStep();
-					$scope.$apply();
-				}
+			else if(e.keyCode == 83 && $scope.simulationStepRunning == true) { // key 's'
+				$scope.simulationStep();
+				$scope.$apply();
 			}
-			else if(e.keyCode == 84) {
-				if($scope.simulationRunning == true || $scope.simulationStepRunning == true) {
-					$scope.generateRuntimeTable();
-				}
+			else if(e.keyCode == 84 && ($scope.simulationRunning == true || $scope.simulationStepRunning == true)) { // key 't'
+				$scope.generateRuntimeTable();
 			}
 		});
 	};
