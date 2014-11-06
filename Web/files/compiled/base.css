@@ -12,6 +12,9 @@ body > input {
   font-size: 0;
   word-spacing: -0.23em;
 }
+body .dropdown-menu {
+  left: auto;
+}
 .modalChart .modal-dialog,
 .modalChart .modal-content {
   height: 95%;
@@ -447,6 +450,5 @@ body > input {
   height: 96px;
 }
 #main #graphContainer #modifier .dropup .dropdown-menu {
-  width: 100%;
   text-align: center;
 }

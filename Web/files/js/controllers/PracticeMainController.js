@@ -15,6 +15,8 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.newGroupName = "";
 	$scope.nodeGroupModifier = "";
 	$scope.nodeTypeNew = "IN";
+	$scope.edgeTypeNew = "PT";
+	$scope.numberOfSecret = 1;
 	$scope.nodeTypeModifier = "COMP";
 	$scope.nodeFuncModifier = "";
 	$scope.nodeNameModifier = "";
@@ -165,13 +167,13 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 
 	bindCustomEvents();
 
-	// events for modify Graph2
+/*
 	$scope.addNode = function() {
 		if(Graph2.isInitialized() == false) {
 			var nodes = [{
 				id: $scope.nameNew.trim(),
 				value: {
-					descr: $scope.descrizioneNew.trim().toUpperCase(),
+					descr: $scope.descrizioneNew.trim(),
 					type: $scope.nodeTypeNew,
 					provider: $scope.providerNodeNew.trim(),
 					mem: parseInt($scope.memNew),
@@ -215,16 +217,77 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 			}
 		}
 	};
+*/
+	$scope.addNode = function() {
+		if ($scope.nameNew.trim() != "" && $scope.descrizioneNew.trim() != "" && $scope.providerNodeNew.trim() != "") {
+			if (Graph2.isInitialized() == false) {
+				Graph2().then(function () {
+					try {
+						Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.riskNew, $scope.nodeFunctionNew);
+
+						// clear input form
+						$scope.nameNew = "";
+						$scope.descrizioneNew = "";
+						$scope.providerNodeNew = "";
+						$scope.memNew = 0;
+						$scope.riskNew = 0.1;
+
+						Graph2.redesign();
+						$timeout(function(){
+							bindCustomEvents();
+							Graph2.scale("parameters");
+						},500);
+					}
+					catch (err) {
+						customAlert(err);
+					}
+				});
+			} else {
+				try {
+					Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.riskNew, $scope.nodeFunctionNew);
+
+					// clear input form
+					$scope.nameNew = "";
+					$scope.descrizioneNew = "";
+					$scope.providerNodeNew = "";
+					$scope.memNew = 0;
+					$scope.riskNew = 0.1;
+
+					Graph2.redesign();
+					$timeout(function(){
+						bindCustomEvents();
+						Graph2.scale("parameters");
+					},500);
+				}
+				catch (err) {
+					customAlert(err);
+				}
+			}
+		}
+		else {
+			customAlert("Not compiled all input form");
+		}
+	};
+
 
 	$scope.addCommunication = function() {
-		if($scope.fromNew.trim() != "" && $scope.toNew.trim() != "") {
+		if($scope.fromNew.trim() != "" && $scope.toNew.trim() != "" && $scope.numberOfSecret != 0) {
 			try {
-				Graph2.addEdge($scope.fromNew.trim(), $scope.toNew.trim(), $scope.timeNew);
+				for(var i = 1; i <= $scope.numberOfSecret; i++) {
+					Graph2.addEdge($scope.fromNew.trim(), $scope.toNew.trim(), $scope.timeNew, $scope.edgeTypeNew, i);
+				}
 
 				// clear input form
 				$scope.fromNew = "";
 				$scope.toNew = "";
 				$scope.timeNew = 0;
+
+				Graph2.redesign();
+				$timeout(function(){
+					bindCustomEvents();
+					Graph2.scale("parameters");
+				},500);
+
 			}
 			catch(err) {
 				customAlert(err);
@@ -233,7 +296,6 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		else {
 			customAlert("Not compiled all input form");
 		}
-		bindCustomEvents();
 	};
 
 	$scope.showModifier = function(condition) {
@@ -302,8 +364,26 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 			reader.onload = function(e) {
 				var graphObj = JSON.parse(e.target.result);
 				// init Graph2 engine
-				Graph2(graphObj.nodes, graphObj.edges).then(function(){
-					bindCustomEvents();
+				Graph2().then(function () {
+					try {
+						for(var i = 0; i < graphObj.nodes.length; i++) {
+							Graph2.addNode(graphObj.nodes[i].id, graphObj.nodes[i].value.descr, graphObj.nodes[i].value.type, graphObj.nodes[i].value.provider, graphObj.nodes[i].value.mem, graphObj.nodes[i].value.risk, graphObj.nodes[i].value.func);
+						}
+						for(var i = 0; i < graphObj.edges.length; i++) {
+							Graph2.addEdge(graphObj.edges[i].value.from, graphObj.edges[i].value.to, graphObj.edges[i].value.label, graphObj.edges[i].value.type, graphObj.edges[i].value.currentNumberOfSecret);
+						}
+
+
+						Graph2.redesign();
+						$timeout(function(){
+							bindCustomEvents();
+							Graph2.resize();
+						},500);
+
+					}
+					catch (err) {
+						customAlert(err);
+					}
 				});
 			};
 			// reset every running simulation
@@ -456,7 +536,13 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				customAlert(err);
 			}
 		}
-		bindCustomEvents();
+
+		Graph2.redesign();
+		$timeout(function(){
+			bindCustomEvents();
+			Graph2.resize();
+		},500);
+
 		$scope.showModifier(false);
 	};
 
@@ -495,6 +581,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				$scope.nodeNameModifier = this.id;
 				$scope.nodeDescriptionModifier = node.descr;
 				$scope.nodeGroupModifier = node.provider;
+				console.log(node);
 				$scope.nodeMemModifier = node.mem;
 				$scope.nodeRiskModifier = node.risk;
 			});

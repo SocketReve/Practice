@@ -134,7 +134,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 	Practice.checkGraph = function() {
 		for( key in nodes ) {
 			if(nodes[key].TYPE == "COMP" && nodes[key].IN.length() <= 1) { // check that COMP nodes have at least 2 edge ingress
-				throw { message: "COMP node '"+ key + "' not have at least 2 input edges" };
+				throw { message: "COMP node '"+ key + "' not have at least 2 input from 2 different nodes" };
 			}
 			if(nodes[key].TYPE == "RES" && nodes[key].OUT.length() > 0) { // check that RES nodes doesn't have exit edge
 				throw { message: "RES node '"+ key + "' can't have any exit communication" };
@@ -188,6 +188,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				Graph2.highlightNode(instants[actualTimeSimulation][i].OUT, true);
 			}
 
+			// calcoli
 			var mapArrayOfMemoriesOutput = {};
 
 			// questo primo for riempe 'mapArrayOfMemoriesOutput' di tutti i valori dati dai noi ai cui archi un determinato nodo è incidente
@@ -208,10 +209,9 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 			// nel caso non sia un nodo COMP, ne conseguo che sia per forza un nodo RES pertanto metto in memoria i valori in ingresso
 			for (node in mapArrayOfMemoriesOutput) {
 				if (typeof PracticeCOMPFunctions[nodes[node].FUNC] == "function") { // in case of COMP node --> FUNC exist
-					var temp = PracticeCOMPFunctions[nodes[node].FUNC](mapArrayOfMemoriesOutput[node]);
-					nodes[node].MEM.array.push(temp); // change local mem (LOGIC)
+					nodes[node].MEM.array = nodes[node].MEM.array.concat(mapArrayOfMemoriesOutput[node]); // change local mem (LOGIC)
 					nodes[node].MEM.value = PracticeCOMPFunctions[nodes[node].FUNC](nodes[node].MEM.array);
-					Graph2.setNodeMem(node, nodes[node].MEM.value); // change visualisation mem (GRAPH2)
+					Graph2.setNodeMem(node, nodes[node].MEM.array); // change visualisation mem (GRAPH2)
 				}
 				else {
 					nodes[node].MEM.array.push(mapArrayOfMemoriesOutput[node]); // in case of RES node

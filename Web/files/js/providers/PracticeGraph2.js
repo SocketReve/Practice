@@ -40,8 +40,6 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 
 		// on DOM ready
 		angular.element(document).ready(function(){
-			initialized = true;
-
 			defer.resolve();
 			// init d3 svg
 			svg = d3.select("svg");
@@ -105,34 +103,8 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 				});
 				return svgLabel;
 			});
-
-			for(var i = 0; i < nodes.length; i++) {
-				g.addNode(nodes[i].id, {
-					labelType: "html",
-					label: getNodeHTMLLabel(nodes[i].id, nodes[i].value.descr, nodes[i].value.type, nodes[i].value.provider.toUpperCase(), nodes[i].value.mem, nodes[i].value.risk, nodes[i].value.func),
-					descr: nodes[i].value.descr,
-					type: nodes[i].value.type,
-					provider: nodes[i].value.provider.toUpperCase(),
-					mem: parseInt(nodes[i].value.mem),
-					risk: parseFloat(nodes[i].value.risk),
-					func: nodes[i].value.func,
-					highlight: nodes[i].value.highlight
-				});
-			}
-
-			for(var i = 0; i < edges.length; i++) {
-				g.addEdge(edges[i].id, edges[i].value.from, edges[i].value.to, {
-					label: edges[i].value.label,
-					from: edges[i].value.from,
-					to: edges[i].value.to,
-					highlight: edges[i].value.highlight
-				});
-			}
-
 			renderer.layout(layout);
-			model = renderer.run(g,d3.select("svg g g"));
 
-			Graph.resize();
 		}); // on DOM ready
 
 		// every second check if resize has been changed
@@ -236,6 +208,10 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 	};
 
 	Graph.addNode = function(id, description, type, provider, mem, risk, func) {
+		if(initialized == false) {
+			initialized = true;
+			model = renderer.run(g,d3.select("svg g g"));
+		}
 		try {
 			g.addNode(camelCase(id.trim()), {
 				labelType: "html",
@@ -251,46 +227,30 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		} catch(err) {
 			throw { message: "Node already in graph or input not valid" };
 		}
-
-		Graph.redesign();
-
-		$timeout(function(){
-			Graph.scale("parameters");
-		},500);
 	};
 
-	Graph.addEdge = function(source, target, time) {
+	Graph.addEdge = function(source, target, time, type, currentNumberOfSecret) {
 		try {
-			g.addEdge(camelCase(source)+"-"+camelCase(target)+"-"+time.toString(), camelCase(source), camelCase(target), {
+			g.addEdge(camelCase(source)+"-"+camelCase(target)+"-"+time.toString()+"-"+currentNumberOfSecret.toString(), camelCase(source), camelCase(target), {
 				label: time.toString(),
 				from: camelCase(source),
 				to: camelCase(target),
+				type: type,
+				currentNumberOfSecret: currentNumberOfSecret,
 				highlight: false
 			});
 		} catch(err) {
+			console.log(err);
 			throw { message: "Edge is already in the graph or input not valid" };
 		}
-
-		Graph.redesign();
-		$timeout(function(){
-			Graph.resize();
-		},500);
 	};
 
 	Graph.removeNode = function(id) {
 		try {
-			/*if(g.nodes().length == 1) {
-				throw null;
-			}*/
 			g.delNode(id);
 		} catch(err) {
 			throw { message: "Node not exists, input not valid. Graph cannot exits without nodes" };
 		}
-		Graph.redesign();
-
-		$timeout(function(){
-			Graph.resize();
-		},500);
 	};
 
 	Graph.removeEdge = function(id) {
@@ -299,12 +259,6 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		} catch(err) {
 			throw { message: "Communication not exists" };
 		}
-		Graph.redesign();
-/*
-		$timeout(function(){
-			Graph.resize();
-		},500);
-*/
 	};
 
 	Graph.redesign = function() {
@@ -326,8 +280,6 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			translate = [(width/2) - ((graphWidth*zoomScale)/2)+10, (height/2) - ((graphHeight*zoomScale)/2)];
 		}
 		else if (scaleMod == "parameters") {
-			console.log(graphWidth);
-			console.log(width);
 			//var factorScale = (graphWidth * 1.5 > width) ? 3 :
 			var zoomScale = Math.min(width / graphWidth * scaleOnParameter, height / graphHeight * scaleOnParameter);
 			var parametersWidth = document.getElementById("parameters").offsetWidth;

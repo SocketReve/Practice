@@ -68,7 +68,7 @@
 						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
 							<div class="dropdown">
 								<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
-									{{ nodeTypeNew }}
+									<strong>Type:</strong> {{ nodeTypeNew }}
 									<span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu" role="menu">
@@ -78,7 +78,7 @@
 
 									<li role="presentation" class="divider"></li>
 									<li role="presentation" class="dropdown-header">COMP</li>
-									<li ng-repeat="func in funcOfCompNode" role="presentation"><a ng-click="$parent.nodeTypeNew='COMP'; $parent.nodeFunctionNew=func" role="menuitem" href="#">{{ func }}</a></li>
+									<li ng-repeat="func in funcOfCompNode" role="presentation"><a ng-click="$parent.nodeTypeNew='COMP'; $parent.memNew=0; $parent.nodeFunctionNew=func" role="menuitem" href="#">{{ func }}</a></li>
 									<li role="presentation" class="divider"></li>
 
 									<li role="presentation"><a ng-click="nodeTypeNew='RES'; nodeFunctionNew = null; memNew=0; " role="menuitem" href="#">RES</a></li>
@@ -143,6 +143,31 @@
 						<label for="timeInput" class="control-label col-lg-2 col-md-2"> Time: </label>
 						<div class="col-lg-10">
 							<input required ng-model="timeNew" type="number" class="form-control" id="timeInput" placeholder="Time instant">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
+							<div class="dropup" dropdown>
+								<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+									 <strong>Type:</strong> {{ edgeTypeNew }}
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" role="menu">
+									<li role="presentation"><a ng-click="edgeTypeNew='PT'" role="menuitem" href="#">PLAIN TEXT</a></li>
+									<li role="presentation"><a ng-click="edgeTypeNew='SS'" role="menuitem" href="#">CRYPTED</a></li>
+									<li role="presentation"><a ng-click="edgeTypeNew='SS'" role="menuitem" href="#">SECRET SHARE</a></li>
+									<li role="presentation"><a ng-click="edgeTypeNew='GC'" role="menuitem" href="#">GARBLED CIRCUITS</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<div ng-show="edgeTypeNew == 'SS'" class="form-group">
+						<label for="numberOfSecret" class="control-label col-lg-2 col-md-2"> N. of Secrets: </label>
+						<br>
+						<div class="col-lg-10">
+							<input required ng-model="numberOfSecret" type="number" min="1" class="form-control" id="numberOfSecret" placeholder="Number of Secrets">
 						</div>
 					</div>
 
