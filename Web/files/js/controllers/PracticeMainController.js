@@ -25,6 +25,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.nodeDescriptionModifier = "";
 	$scope.edgeIdModifier = "";
 	$scope.edgeLabelModifier = 0;
+	$scope.edgeTypeModifier = "";
 	$scope.simulationRunning = false;
 	$scope.simulationStepRunning = false;
 	$scope.funcOfCompNode = [];
@@ -514,6 +515,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 			}
 		} else if ($scope.modifierIsEdge) {
 			Graph2.setEdgeLabel($scope.edgeIdModifier, $scope.edgeLabelModifier);
+			Graph2.setEdgeType($scope.edgeIdModifier, $scope.edgeTypeModifier);
 		}
 
 		Graph2.redesign();
@@ -601,6 +603,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 
 				$scope.edgeIdModifier = this.id;
 				$scope.edgeLabelModifier = parseInt(edge.label);
+				$scope.edgeTypeModifier = edge.type;
 			});
 		}
 

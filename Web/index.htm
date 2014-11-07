@@ -244,6 +244,20 @@
 							<input ng-required="modifierIsEdge" ng-model="edgeLabelModifier" type="number" class="form-control" placeholder="Time of communication">
 						</div>
 					</div>
+					<div ng-show="modifierIsEdge" class="col-lg-3 col-md-3">
+						<div class="dropup" dropdown>
+							<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+								{{ edgeTypeModifier }}
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" role="menu">
+								<li role="presentation"><a ng-click="edgeTypeModifier='PT'" role="menuitem" href="#">PLAIN TEXT</a></li>
+								<li role="presentation"><a ng-click="edgeTypeModifier='CR'" role="menuitem" href="#">CRYPTED</a></li>
+								<li role="presentation"><a ng-click="edgeTypeModifier='SS'" role="menuitem" href="#">SECRET SHARE</a></li>
+								<li role="presentation"><a ng-click="edgeTypeModifier='GC'" role="menuitem" href="#">GARBLED CIRCUITS</a></li>
+							</ul>
+						</div>
+					</div>
 					<div ng-show="modifierIsNode" class="col-lg-3 col-md-3">
 						<div class="dropup" dropdown>
 							<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">

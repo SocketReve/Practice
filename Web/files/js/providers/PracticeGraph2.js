@@ -156,16 +156,20 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		g.edge(id).label = label.toString();
 	};
 
+	Graph.setEdgeType = function(id, type) {
+		g.edge(id).type = type;
+	};
+
 	Graph.setNodeDescription = function(id, description) {
 		var temp = g.node(id);
 		g.node(id).descr = description;
 		g.node(id).label = getNodeHTMLLabel(id, description, temp.type, temp.provider, temp.mem, temp.risk, temp.func, temp.calculatedRisk);
 	};
 
-	Graph.setNodeMem = function(id, mem) {
+	Graph.setNodeMem = function(id, value, stringValue) {
 		var temp = g.node(id);
-		g.node(id).mem = parseInt(mem);
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, mem, temp.risk, temp.func, temp.calculatedRisk);
+		g.node(id).mem = parseInt(value);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, stringValue, temp.risk, temp.func, temp.calculatedRisk);
 	};
 
 	Graph.setNodeProvider = function(id, provider) {

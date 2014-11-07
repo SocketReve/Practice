@@ -3,6 +3,12 @@
  */
 
 angular.module("PracticeSimulator").factory("Practice", function($q, $interval, Graph2, PracticeCOMPFunctions) {
+	var memoryTypeToTemplate = {
+		"PT": [' ',' '], // PLAIN TEXT
+		"SS": ['[',']'], // SECRET SHARE OPEN AND CLOSE
+		"CR": ['{','}'], // CRYPTED
+		"GC": ['', '*'] // CIRCUIT GARBLED
+	};
 	// factory scope
 	var nodes, instants, maxTime, rawElements, interval, actualTimeSimulation, matrixNodePerInstants;
 
@@ -72,7 +78,8 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				PROVIDER: rawElements.nodes[i].value.provider,
 				/*MEM: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [rawElements.nodes[i].value.mem],*/
 				MEM: {
-					array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [rawElements.nodes[i].value.mem],
+					//array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [rawElements.nodes[i].value.mem],
+					array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [{value: rawElements.nodes[i].value.mem, comType: null}],
 					value: rawElements.nodes[i].value.mem
 				},
 				FUNC: rawElements.nodes[i].value.func
@@ -99,6 +106,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 						instants[j].push({
 							IN: rawElements.edges[k].value.from,
 							OUT: rawElements.edges[k].value.to,
+							COMTYPE: rawElements.edges[k].value.type,
 							EDGE: rawElements.edges[k].id
 						});
 					} catch (err) { // if not present, create a new one
@@ -106,6 +114,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 						instants[j].push({
 							IN: rawElements.edges[k].value.from,
 							OUT: rawElements.edges[k].value.to,
+							COMTYPE: rawElements.edges[k].value.type,
 							EDGE: rawElements.edges[k].id
 						});
 					}
@@ -197,13 +206,13 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 			// ci mette il nuovo valore
 			for (var i = 0; i < instants[actualTimeSimulation].length; i++) {
 				try {
-					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push(nodes[instants[actualTimeSimulation][i].IN].MEM.value);
+					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push({ value: nodes[instants[actualTimeSimulation][i].IN].MEM.value, comType: instants[actualTimeSimulation][i].COMTYPE });
 					//mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] = mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].concat(nodes[instants[actualTimeSimulation][i].IN].MEM.array);
 
 				}
 				catch (err) { // if not already present, create a new one
 					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] = [];
-					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push(nodes[instants[actualTimeSimulation][i].IN].MEM.value);
+					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push({ value: nodes[instants[actualTimeSimulation][i].IN].MEM.value, comType: instants[actualTimeSimulation][i].COMTYPE });
 					//mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] = mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].concat(nodes[instants[actualTimeSimulation][i].IN].MEM.array);
 				}
 			}
@@ -214,22 +223,20 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 			// per fare una cosa figa ho mappato stringa <-> valore attraverso mapComputationalFunctions
 			// nel caso non sia un nodo COMP, ne conseguo che sia per forza un nodo RES pertanto metto in memoria i valori in ingresso
 			for (var node in mapArrayOfMemoriesOutput) {
+				nodes[node].MEM.array = nodes[node].MEM.array.concat(mapArrayOfMemoriesOutput[node]); // change local mem (LOGIC)
+
 				if (typeof PracticeCOMPFunctions[nodes[node].FUNC] == "function") { // in case of COMP node --> FUNC exist
-					nodes[node].MEM.array = nodes[node].MEM.array.concat(mapArrayOfMemoriesOutput[node]); // change local mem (LOGIC)
-					nodes[node].MEM.value = PracticeCOMPFunctions[nodes[node].FUNC](nodes[node].MEM.array);
-					Graph2.setNodeMem(node, nodes[node].MEM.array); // change visualisation mem (GRAPH2)
+					nodes[node].MEM.value = PracticeCOMPFunctions[nodes[node].FUNC](nodes[node].MEM.array.map(function(item) { return item.value } )); // inline conversion from object to array of values
+					Graph2.setNodeMem(node, nodes[node].MEM.value,compileMemoryToString(nodes[node].MEM.array)); // change visualisation mem (GRAPH2)
 				}
-				else {
-					nodes[node].MEM.array.push(mapArrayOfMemoriesOutput[node]); // in case of RES node
-					Graph2.setNodeMem(node, nodes[node].MEM.array);
+				else { // in case of RES
+					Graph2.setNodeMem(node, 0,compileMemoryToString(nodes[node].MEM.array));
 				}
 			}
-
-
-
 			Graph2.redesign(); // I need to redesign after every modification on graph
 
 		} catch (err) {
+			console.log(err);
 			console.log("SIMULATION TIMER: Time step missing")
 		}
 
@@ -247,6 +254,15 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 
 		actualTimeSimulation++;
 	};
+
+	function compileMemoryToString(mem) {
+		console.log(mem);
+		var compiledMem = "";
+		for(var i = 0; i < mem.length; i++) {
+			compiledMem += memoryTypeToTemplate[mem[i].comType][0] + mem[i].value.toString() + memoryTypeToTemplate[mem[i].comType][1];
+		}
+		return compiledMem;
+	}
 
 	return Practice;
 });
