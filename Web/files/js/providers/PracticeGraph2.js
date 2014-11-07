@@ -43,8 +43,8 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 			defer.resolve();
 			// init d3 svg
 			svg = d3.select("svg");
-			centerG = svg.append("g");
-			zoomG = centerG.append("g");
+			var centerG = svg.append("g");
+			var zoomG = centerG.append("g");
 
 			// init dagreD3
 			zoom = dagreD3.zoom.panAndZoom(d3.select("svg g g"));
@@ -76,7 +76,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 					return g.edge(edge).to;
 				});
 				svgEdges.attr("class", function(edge) {
-					return "edgePath enter " + ((g.edge(edge).highlight) ? "green" : "");
+					return "edgePath enter " + ((g.edge(edge).highlight) ? "green" : "") + " "+ g.edge(edge).type;
 				});
 
 				return svgEdges;
@@ -159,37 +159,37 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 	Graph.setNodeDescription = function(id, description) {
 		var temp = g.node(id);
 		g.node(id).descr = description;
-		g.node(id).label = getNodeHTMLLabel(id, description, temp.type, temp.provider, temp.mem, temp.risk, temp.func);
+		g.node(id).label = getNodeHTMLLabel(id, description, temp.type, temp.provider, temp.mem, temp.risk, temp.func, temp.calculatedRisk);
 	};
 
 	Graph.setNodeMem = function(id, mem) {
 		var temp = g.node(id);
 		g.node(id).mem = parseInt(mem);
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, mem, temp.risk, temp.func);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, mem, temp.risk, temp.func, temp.calculatedRisk);
 	};
 
 	Graph.setNodeProvider = function(id, provider) {
 		var temp = g.node(id);
 		g.node(id).provider = provider;
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, provider, temp.mem, temp.risk, temp.func);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, provider, temp.mem, temp.risk, temp.func, temp.calculatedRisk);
 	};
 
 	Graph.setNodeType = function(id, type) {
 		var temp = g.node(id);
 		g.node(id).type = type;
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, type, temp.provider, temp.mem, temp.risk, temp.func);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, type, temp.provider, temp.mem, temp.risk, temp.func, temp.calculatedRisk);
 	};
 
 	Graph.setNodeFunc = function(id, func) {
 		var temp = g.node(id);
 		g.node(id).func = func;
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, temp.risk, func);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, temp.risk, func, temp.calculatedRisk);
 	};
 
 	Graph.setNodeRisk = function(id, risk) {
 		var temp = g.node(id);
 		g.node(id).risk = parseFloat(risk);
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, risk, temp.func);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, risk, temp.func, temp.calculatedRisk);
 	};
 
 	Graph.resize = function() {
@@ -215,13 +215,14 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		try {
 			g.addNode(camelCase(id.trim()), {
 				labelType: "html",
-				label: getNodeHTMLLabel(id, description, type, provider, mem, risk, func),
+				label: getNodeHTMLLabel(id, description, type, provider, mem, risk, func, Number(0).toFixed(1)),
 				descr: description,
 				type: type,
 				provider: provider.toUpperCase(),
 				mem: parseInt(mem),
 				risk: parseFloat(risk),
 				func: func,
+				calculatedRisk: Number(0).toFixed(1), // for have 0.0 notation
 				highlight: false
 			});
 		} catch(err) {
@@ -319,9 +320,10 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		});
 	};
 
-	function getNodeHTMLLabel(id, description, type, provider, mem, risk, func) {
+	function getNodeHTMLLabel(id, description, type, provider, mem, risk, func, calculatedRisk) {
 		var htmlTemplate =	"<div class='customNode'>";
 				htmlTemplate +=	"<span class='type "+ $sanitize(type) +"'> </span>";
+				htmlTemplate += "<span class='calcRisk'> "+ $sanitize(calculatedRisk) +" </span>";
 				htmlTemplate +=	"<span class='name'>"+ camelCase($sanitize(id)) +"</span>";
 				htmlTemplate +=	"<span class='description'>"+ $sanitize(description) +"</span>";
 				htmlTemplate +=	"<span class='provider'>"+ $sanitize(provider.toUpperCase()) +"</span>";

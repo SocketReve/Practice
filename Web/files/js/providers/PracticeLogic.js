@@ -198,16 +198,22 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 			for (var i = 0; i < instants[actualTimeSimulation].length; i++) {
 				try {
 					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push(nodes[instants[actualTimeSimulation][i].IN].MEM.value);
+					//mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] = mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].concat(nodes[instants[actualTimeSimulation][i].IN].MEM.array);
+
 				}
 				catch (err) { // if not already present, create a new one
 					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] = [];
 					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push(nodes[instants[actualTimeSimulation][i].IN].MEM.value);
+					//mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] = mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].concat(nodes[instants[actualTimeSimulation][i].IN].MEM.array);
 				}
 			}
+
+			//console.log(mapArrayOfMemoriesOutput);
+
 			// in questo ciclo for scandisco i vari nodi e, nel caso di nodo COMP, eseguo la funzione annessa.
 			// per fare una cosa figa ho mappato stringa <-> valore attraverso mapComputationalFunctions
 			// nel caso non sia un nodo COMP, ne conseguo che sia per forza un nodo RES pertanto metto in memoria i valori in ingresso
-			for (node in mapArrayOfMemoriesOutput) {
+			for (var node in mapArrayOfMemoriesOutput) {
 				if (typeof PracticeCOMPFunctions[nodes[node].FUNC] == "function") { // in case of COMP node --> FUNC exist
 					nodes[node].MEM.array = nodes[node].MEM.array.concat(mapArrayOfMemoriesOutput[node]); // change local mem (LOGIC)
 					nodes[node].MEM.value = PracticeCOMPFunctions[nodes[node].FUNC](nodes[node].MEM.array);

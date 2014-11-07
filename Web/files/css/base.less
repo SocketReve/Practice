@@ -293,6 +293,17 @@ body {
 						}
 					}
 
+					.calcRisk {
+						display: block;
+						color: red;
+						float: right;
+						padding-left: 4px;
+						padding-right: 4px;
+						background-color: white;
+						margin-top: 5px;
+						margin-right: 1px;
+					}
+
 					.name {
 						padding-left: 5px;
 						display: block;
@@ -301,6 +312,7 @@ body {
 						padding-top: 5px;
 						font-size: 1.1em;
 					}
+
 
 					.description {
 						font-size: 0.7em;
@@ -373,6 +385,11 @@ body {
 					&.green {
 						stroke-width: 3px !important;
 						stroke: @green !important;
+					}
+
+					// classes of crypted communication
+					&.SS, &.CR, &.GC {
+						stroke: #adad00;
 					}
 				}
 			}

@@ -156,7 +156,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	}];*/
 
 	// init funcOfCompNode
-	for(type in PracticeCOMPFunctions) {
+	for(var type in PracticeCOMPFunctions) {
 		$scope.funcOfCompNode.push(type);
 	}
 
