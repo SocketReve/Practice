@@ -2,11 +2,9 @@
  * Created by Luca Reverberi - socketreve (thereve@gmail.com) on 29/10/14.
  */
 
-angular.module("PracticeSimulator").controller("PracticeRuntimeTableController", function($scope, $modalInstance, runTimeNodePerInstantsTable){
+angular.module("PracticeSimulator").controller("PracticeRuntimeTableController", function($scope, $modalInstance, runTimeNodePerInstantsTable, Practice){
 	$scope.trHeader = ['#'];
 	$scope.table =[];
-
-	console.log(runTimeNodePerInstantsTable);
 
 	for(var node in runTimeNodePerInstantsTable[0]) {
 		$scope.trHeader.push(node);
@@ -18,8 +16,13 @@ angular.module("PracticeSimulator").controller("PracticeRuntimeTableController",
 			$scope.table[i].push(runTimeNodePerInstantsTable[i][$scope.trHeader[j]]);
 		}
 	}
+
+	$scope.getArrayOfValue = function(array) {
+		return Practice.compileMemoryToString(array);
+	};
+
 	//$scope.table = runTimeNodePerInstantsTable;
 	$scope.exit = function() {
 		$modalInstance.close();
-	}
+	};
 });

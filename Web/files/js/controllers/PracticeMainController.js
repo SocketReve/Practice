@@ -31,198 +31,19 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.funcOfCompNode = [];
 	$scope.alert = false;
 
-/*	var nodes = [{
-		id: "nodo1",
-		descr: "--",
-		type: "IN",
-		provider: "--",
-		mem: "1",
-		risk: "0.5"
-	},{
-		id: "nodo2",
-		descr: "--",
-		type: "IN",
-		provider: "--",
-		mem: "3",
-		risk: "0.5"
-	},{
-		id: "nodo3",
-		descr: "--",
-		type: "IN",
-		provider: "--",
-		mem: "1",
-		risk: "0.5"
-	},{
-		id: "nodo4",
-		descr: "--",
-		type: "IN",
-		provider: "--",
-		mem: "7",
-		risk: "0.5"
-	},{
-		id: "nodo5",
-		descr: "--",
-		type: "IN",
-		provider: "--",
-		mem: "3",
-		risk: "0.5"
-	},{
-		id: "nodo6",
-		descr: "--",
-		type: "IN",
-		provider: "--",
-		mem: "5",
-		risk: "0.5"
-	},{
-		id: "comp1",
-		descr: "--",
-		type: "COMP",
-		provider: "--",
-		mem: "0",
-		risk: "0.5",
-		func: "SUM"
-	},{
-		id: "comp2",
-		descr: "--",
-		type: "COMP",
-		provider: "--",
-		mem: "0",
-		risk: "0.5",
-		func: "SUM"
-	},{
-		id: "comp3",
-		descr: "--",
-		type: "COMP",
-		provider: "--",
-		mem: "0",
-		risk: "0.5",
-		func: "SUM"
-	},{
-		id: "comp4",
-		descr: "--",
-		type: "COMP",
-		provider: "--",
-		mem: "0",
-		risk: "0.5",
-		func: "MIN"
-	},{
-		id: "res",
-		descr: "--",
-		type: "RES",
-		provider: "--",
-		mem: "0",
-		risk: "0.5"
-	}];
-
-	var edges = [{
-		u: "nodo1",
-		v: "comp1",
-		time: 0
-	},{
-		u: "nodo2",
-		v: "comp1",
-		time: 1
-	},{
-		u: "nodo3",
-		v: "comp2",
-		time: 1
-	},{
-		u: "nodo4",
-		v: "comp2",
-		time: 2
-	},{
-		u: "nodo5",
-		v: "comp3",
-		time: 1
-	},{
-		u: "nodo6",
-		v: "comp3",
-		time: 2
-	},{
-		u: "comp1",
-		v: "comp4",
-		time: 2
-	},{
-		u: "comp2",
-		v: "comp4",
-		time: 2
-	},{
-		u: "comp3",
-		v: "comp4",
-		time: 4
-	},{
-		u: "comp4",
-		v: "res",
-		time: 5
-	}];*/
 
 	// init funcOfCompNode
 	for(var type in PracticeCOMPFunctions) {
 		$scope.funcOfCompNode.push(type);
 	}
 
-/*	// init Graph2 engine
-	Graph2(nodes, edges).then(function(){
-		bindCustomEvents();
-	});*/
 
 	bindCustomEvents();
 
-/*
-	$scope.addNode = function() {
-		if(Graph2.isInitialized() == false) {
-			var nodes = [{
-				id: $scope.nameNew.trim(),
-				value: {
-					descr: $scope.descrizioneNew.trim(),
-					type: $scope.nodeTypeNew,
-					provider: $scope.providerNodeNew.trim(),
-					mem: parseInt($scope.memNew),
-					risk: parseFloat($scope.riskNew),
-					func: $scope.nodeFunctionNew,
-					highlight: false
-				}
-			}];
-
-			Graph2(nodes, []).then(function(){
-				bindCustomEvents();
-			});
-
-			// clear input form
-			$scope.nameNew = "";
-			$scope.descrizioneNew = "";
-			$scope.providerNodeNew = "";
-			$scope.memNew = 0;
-			$scope.riskNew = 0.1;
-
-		}
-		else {
-			if ($scope.nameNew.trim() != "" && $scope.descrizioneNew.trim() != "" && $scope.providerNodeNew.trim() != "") {
-				try {
-					Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.riskNew, $scope.nodeFunctionNew);
-
-					// clear input form
-					$scope.nameNew = "";
-					$scope.descrizioneNew = "";
-					$scope.providerNodeNew = "";
-					$scope.memNew = 0;
-					$scope.riskNew = 0.1;
-					bindCustomEvents();
-				}
-				catch (err) {
-					customAlert(err);
-				}
-			}
-			else {
-				customAlert("Not compiled all input form");
-			}
-		}
-	};
-*/
 	$scope.addNode = function() {
 		if ($scope.nameNew.trim() != "" && $scope.descrizioneNew.trim() != "" && $scope.providerNodeNew.trim() != "") {
 			if (Graph2.isInitialized() == false) {
-				Graph2().then(function () {
+				new Graph2().then(function () {
 					try {
 						Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.riskNew, $scope.nodeFunctionNew);
 
@@ -365,7 +186,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 			reader.onload = function(e) {
 				var graphObj = JSON.parse(e.target.result);
 				// init Graph2 engine
-				Graph2().then(function () {
+				new Graph2().then(function () {
 					try {
 						for(var i = 0; i < graphObj.nodes.length; i++) {
 							Graph2.addNode(graphObj.nodes[i].id, graphObj.nodes[i].value.descr, graphObj.nodes[i].value.type, graphObj.nodes[i].value.provider, graphObj.nodes[i].value.mem, graphObj.nodes[i].value.risk, graphObj.nodes[i].value.func);
@@ -400,7 +221,9 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.checkGraph = function() {
 		if(Graph2.isInitialized()) {
 			try {
-				Practice();
+				if(!Practice.isInitialized()) {
+					new Practice();
+				}
 				Practice.checkGraph();
 				customAlert({ type: "success", message: "Everything OK" })
 			}
@@ -416,7 +239,9 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.runSimulation = function() {
 		try {
 			Graph2.resize();
-			Practice();
+			if(!Practice.isInitialized()) {
+				new Practice();
+			}
 			Practice.checkGraph();
 
 

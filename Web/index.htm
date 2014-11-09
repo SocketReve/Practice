@@ -155,7 +155,7 @@
 								</button>
 								<ul class="dropdown-menu" role="menu">
 									<li role="presentation"><a ng-click="edgeTypeNew='PT'" role="menuitem" href="#">PLAIN TEXT</a></li>
-									<li role="presentation"><a ng-click="edgeTypeNew='CR'" role="menuitem" href="#">CRYPTED</a></li>
+									<li role="presentation"><a ng-click="edgeTypeNew='EN'" role="menuitem" href="#">ENCRYPTED</a></li>
 									<li role="presentation"><a ng-click="edgeTypeNew='SS'" role="menuitem" href="#">SECRET SHARE</a></li>
 									<li role="presentation"><a ng-click="edgeTypeNew='GC'" role="menuitem" href="#">GARBLED CIRCUITS</a></li>
 								</ul>
@@ -218,7 +218,7 @@
 
 				<form ng-submit="saveModifications()" id="modifier" class="hide">
 					<div class="title">
-						&nbsp&nbspModifier
+						&nbsp;&nbsp;Modifier
 						<button type="button" ng-click="showModifier(false)" class="close"><span aria-hidden="true">&times;</span></button>
 					</div>
 					<br>
@@ -247,12 +247,12 @@
 					<div ng-show="modifierIsEdge" class="col-lg-3 col-md-3">
 						<div class="dropup" dropdown>
 							<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
-								{{ edgeTypeModifier }}
+								<strong>Type:</strong> {{ edgeTypeModifier }}
 								<span class="caret"></span>
 							</button>
 							<ul class="dropdown-menu" role="menu">
 								<li role="presentation"><a ng-click="edgeTypeModifier='PT'" role="menuitem" href="#">PLAIN TEXT</a></li>
-								<li role="presentation"><a ng-click="edgeTypeModifier='CR'" role="menuitem" href="#">CRYPTED</a></li>
+								<li role="presentation"><a ng-click="edgeTypeModifier='EN'" role="menuitem" href="#">ENCRYPTED</a></li>
 								<li role="presentation"><a ng-click="edgeTypeModifier='SS'" role="menuitem" href="#">SECRET SHARE</a></li>
 								<li role="presentation"><a ng-click="edgeTypeModifier='GC'" role="menuitem" href="#">GARBLED CIRCUITS</a></li>
 							</ul>
@@ -261,7 +261,7 @@
 					<div ng-show="modifierIsNode" class="col-lg-3 col-md-3">
 						<div class="dropup" dropdown>
 							<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
-								{{ nodeTypeModifier }}
+								<strong>Type:</strong> {{ nodeTypeModifier }}
 								<span class="caret"></span>
 							</button>
 							<ul class="dropdown-menu" role="menu">

@@ -3,18 +3,19 @@
  */
 
 angular.module("PracticeSimulator").factory("Practice", function($q, $interval, Graph2, PracticeCOMPFunctions) {
-	var memoryTypeToTemplate = {
+	var comTypeToTemplate = {
 		"PT": [' ',' '], // PLAIN TEXT
 		"SS": ['[',']'], // SECRET SHARE OPEN AND CLOSE
-		"CR": ['{','}'], // CRYPTED
+		"EN": ['{','}'], // ENCRYPTED
 		"GC": ['', '*'] // CIRCUIT GARBLED
 	};
 	// factory scope
 	var nodes, instants, maxTime, rawElements, interval, actualTimeSimulation, matrixNodePerInstants;
+	var initialized = false;
 
 	var Practice = function() {
 		maxTime = 0;
-
+		initialized = true;
 		// template for nodes object:
 		/*	{
 			 idNode: {
@@ -79,7 +80,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				/*MEM: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [rawElements.nodes[i].value.mem],*/
 				MEM: {
 					//array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [rawElements.nodes[i].value.mem],
-					array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [{value: rawElements.nodes[i].value.mem, comType: null}],
+					array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [{value: rawElements.nodes[i].value.mem, comType: "PT"}],
 					value: rawElements.nodes[i].value.mem
 				},
 				FUNC: rawElements.nodes[i].value.func
@@ -227,10 +228,10 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 
 				if (typeof PracticeCOMPFunctions[nodes[node].FUNC] == "function") { // in case of COMP node --> FUNC exist
 					nodes[node].MEM.value = PracticeCOMPFunctions[nodes[node].FUNC](nodes[node].MEM.array.map(function(item) { return item.value } )); // inline conversion from object to array of values
-					Graph2.setNodeMem(node, nodes[node].MEM.value,compileMemoryToString(nodes[node].MEM.array)); // change visualisation mem (GRAPH2)
+					Graph2.setNodeMem(node, nodes[node].MEM.value,Practice.compileMemoryToString(nodes[node].MEM.array)); // change visualisation mem (GRAPH2)
 				}
 				else { // in case of RES
-					Graph2.setNodeMem(node, 0,compileMemoryToString(nodes[node].MEM.array));
+					Graph2.setNodeMem(node, 0,Practice.compileMemoryToString(nodes[node].MEM.array));
 				}
 			}
 			Graph2.redesign(); // I need to redesign after every modification on graph
@@ -255,14 +256,16 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 		actualTimeSimulation++;
 	};
 
-	function compileMemoryToString(mem) {
-		console.log(mem);
+	Practice.compileMemoryToString = function(mem) {
 		var compiledMem = "";
 		for(var i = 0; i < mem.length; i++) {
-			compiledMem += memoryTypeToTemplate[mem[i].comType][0] + mem[i].value.toString() + memoryTypeToTemplate[mem[i].comType][1];
+			compiledMem += comTypeToTemplate[mem[i].comType][0] + mem[i].value.toString() + comTypeToTemplate[mem[i].comType][1];
 		}
 		return compiledMem;
-	}
+	};
 
+	Practice.isInitialized = function() {
+		return initialized;
+	};
 	return Practice;
 });

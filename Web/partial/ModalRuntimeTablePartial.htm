@@ -14,7 +14,7 @@
 		<tbody>
 			<tr ng-repeat="row in table track by $index">
 				<td> {{ $index }} </td>
-				<td ng-repeat="col in row"> {{ (col.TYPE == "RES") ? col.MEM.array : col.MEM.value }} </td>
+				<td ng-repeat="col in row"> {{ getArrayOfValue(col.MEM.array) }} | {{ col.MEM.value }} </td>
 			</tr>
 		</tbody>
 	</table>
