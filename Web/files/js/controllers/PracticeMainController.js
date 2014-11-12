@@ -16,7 +16,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.nodeGroupModifier = "";
 	$scope.nodeTypeNew = "IN";
 	$scope.edgeTypeNew = "PT";
-	$scope.numberOfSecret = 1;
+	//$scope.numberOfSecret = 1;
 	$scope.nodeTypeModifier = "COMP";
 	$scope.nodeFuncModifier = "";
 	$scope.nodeNameModifier = "";
@@ -93,11 +93,14 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 
 
 	$scope.addCommunication = function() {
-		if($scope.fromNew.trim() != "" && $scope.toNew.trim() != "" && $scope.numberOfSecret != 0) {
+		if($scope.fromNew.trim() != "" && $scope.toNew.trim() != "" /*&& $scope.numberOfSecret != 0*/) {
 			try {
+				Graph2.addEdge($scope.fromNew.trim(), $scope.toNew.trim(), $scope.timeNew, $scope.edgeTypeNew);
+/*
 				for(var i = 1; i <= $scope.numberOfSecret; i++) {
-					Graph2.addEdge($scope.fromNew.trim(), $scope.toNew.trim(), $scope.timeNew, $scope.edgeTypeNew, i);
+					Graph2.addEdge($scope.fromNew.trim(), $scope.toNew.trim(), $scope.timeNew, $scope.edgeTypeNew);
 				}
+*/
 
 				// clear input form
 				$scope.fromNew = "";
@@ -296,6 +299,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 			templateUrl: 'partial/ModalRuntimeTablePartial.htm',
 			controller: "PracticeRuntimeTableController",
 			size: "lg",
+			windowClass: "modalRuntimeTable",
 			resolve: {
 				runTimeNodePerInstantsTable: function () {
 					return Practice.getTableNodePerInstants();

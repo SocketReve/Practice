@@ -142,7 +142,7 @@
 					<div class="form-group">
 						<label for="timeInput" class="control-label col-lg-2 col-md-2"> Time: </label>
 						<div class="col-lg-10">
-							<input required ng-model="timeNew" type="number" class="form-control" id="timeInput" placeholder="Time instant">
+							<input required ng-model="timeNew" type="number" min="0" class="form-control" id="timeInput" placeholder="Time instant">
 						</div>
 					</div>
 
@@ -163,13 +163,13 @@
 						</div>
 					</div>
 
-					<div ng-show="edgeTypeNew == 'SS'" class="form-group">
+					<!--<div ng-show="edgeTypeNew == 'SS'" class="form-group">
 						<label for="numberOfSecret" class="control-label col-lg-2 col-md-2"> N. of Secrets: </label>
 						<br>
 						<div class="col-lg-10">
 							<input required ng-model="numberOfSecret" type="number" min="1" class="form-control" id="numberOfSecret" placeholder="Number of Secrets">
 						</div>
-					</div>
+					</div>-->
 
 					<div class="form-group">
 						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">

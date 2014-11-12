@@ -51,6 +51,9 @@ body .dropdown-menu {
   opacity: .7;
   cursor: pointer;
 }
+.modalRuntimeTable sub {
+  color: forestgreen;
+}
 #main {
   height: 100%;
   width: 100%;
@@ -257,6 +260,16 @@ body .dropdown-menu {
   color: white;
   padding-left: 5px;
 }
+#main #graphContainer #network svg .customNode .calcRisk {
+  display: block;
+  color: red;
+  float: right;
+  padding-left: 4px;
+  padding-right: 4px;
+  background-color: white;
+  margin-top: 8px;
+  margin-right: 1px;
+}
 #main #graphContainer #network svg .customNode .name {
   padding-left: 5px;
   display: block;
@@ -292,6 +305,12 @@ body .dropdown-menu {
 #main #graphContainer #network svg .customNode .mem.modified {
   color: red;
 }
+#main #graphContainer #network svg .customNode .mem sub {
+  color: forestgreen;
+  font-size: 0.7em;
+  vertical-align: sub;
+  position: static;
+}
 #main #graphContainer #network svg .customNode .risk {
   display: inline-block;
   font-size: 0.9em;
@@ -325,6 +344,11 @@ body .dropdown-menu {
 #main #graphContainer #network svg .edgePath.green {
   stroke-width: 3px !important;
   stroke: #17cf00 !important;
+}
+#main #graphContainer #network svg .edgePath.SS,
+#main #graphContainer #network svg .edgePath.EN,
+#main #graphContainer #network svg .edgePath.GC {
+  stroke: #adad00;
 }
 #main #graphContainer #simulationButtons {
   position: absolute;

@@ -67,30 +67,38 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				OUT: {
 					length: function() {
 						var size = 0;
-						var key;
-						for (key in this) {
+						for (var key in this) {
 							if (this.hasOwnProperty(key)) size++;
 						}
-						return size - 1; // -1 because length is at the same time a property
+						return size - 2; // because length and numberOfShares are at the same time a properties
 					}
 				},
 				TYPE: rawElements.nodes[i].value.type,
 				RISK: rawElements.nodes[i].value.risk,
 				PROVIDER: rawElements.nodes[i].value.provider,
-				/*MEM: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [rawElements.nodes[i].value.mem],*/
 				MEM: {
-					//array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [rawElements.nodes[i].value.mem],
-					array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [{value: rawElements.nodes[i].value.mem, comType: "PT"}],
+					array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [{value: rawElements.nodes[i].value.mem, comType: "PT", numberOfShare: 0}],
 					value: rawElements.nodes[i].value.mem
 				},
 				FUNC: rawElements.nodes[i].value.func
 			}
 		}
 
+		console.log(rawElements);
+
+		// find out and in edges
 		for (var i = 0; i < rawElements.edges.length; i++) {
 			nodes[rawElements.edges[i].value.to].IN[rawElements.edges[i].value.from] = true;
 			nodes[rawElements.edges[i].value.from].OUT[rawElements.edges[i].value.to] = true;
 		}
+
+/*		// take track shares on networks
+		for (var i = 0; i < rawElements.edges.length; i++) {
+			if(rawElements.edges[i].value.type == "SS") {
+				nodes[rawElements.edges[i].value.from].SHARES = nodes[rawElements.edges[i].value.from].SHARES + 1;
+			}
+		}*/
+
 		// calculate max time
 		for(var i = 0; i < rawElements.edges.length; i++) {
 			if(parseInt(rawElements.edges[i].value.label) > maxTime ) {
@@ -103,22 +111,16 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 		for(var i = 0; i < rawElements.edges.length; i++) {
 			for(var k = 0; k < rawElements.edges.length; k++){
 				if(parseInt(rawElements.edges[k].value.label) == j) {
-					try {
-						instants[j].push({
-							IN: rawElements.edges[k].value.from,
-							OUT: rawElements.edges[k].value.to,
-							COMTYPE: rawElements.edges[k].value.type,
-							EDGE: rawElements.edges[k].id
-						});
-					} catch (err) { // if not present, create a new one
-						instants[j] = [];
-						instants[j].push({
-							IN: rawElements.edges[k].value.from,
-							OUT: rawElements.edges[k].value.to,
-							COMTYPE: rawElements.edges[k].value.type,
-							EDGE: rawElements.edges[k].id
-						});
+					if(!(instants[j] instanceof Array)) {// if is not an array
+						instants[j] = []; // create a new one
 					}
+					instants[j].push({
+						IN: rawElements.edges[k].value.from,
+						OUT: rawElements.edges[k].value.to,
+						COMTYPE: rawElements.edges[k].value.type,
+						EDGE: rawElements.edges[k].id,
+						SHARENUMBER: rawElements.edges[k].value.shareNumber
+					});
 				}
 			}
 			j++;
@@ -137,9 +139,6 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 		return matrixNodePerInstants;
 	};
 
-	/*Practice.getMapArrayOfMemoriesOutput = function() {
-		return mapArrayOfMemoriesOutput;
-	}*/
 
 	Practice.checkGraph = function() {
 		for( key in nodes ) {
@@ -206,19 +205,11 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 			// in input che andrà poi successivamente calcolato con una delle funzioni disponibili. Nel caso non sia presente, crea un nuovo array e
 			// ci mette il nuovo valore
 			for (var i = 0; i < instants[actualTimeSimulation].length; i++) {
-				try {
-					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push({ value: nodes[instants[actualTimeSimulation][i].IN].MEM.value, comType: instants[actualTimeSimulation][i].COMTYPE });
-					//mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] = mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].concat(nodes[instants[actualTimeSimulation][i].IN].MEM.array);
-
-				}
-				catch (err) { // if not already present, create a new one
+				if(!(mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] instanceof Array)) {
 					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] = [];
-					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push({ value: nodes[instants[actualTimeSimulation][i].IN].MEM.value, comType: instants[actualTimeSimulation][i].COMTYPE });
-					//mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] = mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].concat(nodes[instants[actualTimeSimulation][i].IN].MEM.array);
 				}
+				mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push({ value: nodes[instants[actualTimeSimulation][i].IN].MEM.value, comType: instants[actualTimeSimulation][i].COMTYPE, numberOfShare: instants[actualTimeSimulation][i].SHARENUMBER});
 			}
-
-			//console.log(mapArrayOfMemoriesOutput);
 
 			// in questo ciclo for scandisco i vari nodi e, nel caso di nodo COMP, eseguo la funzione annessa.
 			// per fare una cosa figa ho mappato stringa <-> valore attraverso mapComputationalFunctions
@@ -227,7 +218,8 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				nodes[node].MEM.array = nodes[node].MEM.array.concat(mapArrayOfMemoriesOutput[node]); // change local mem (LOGIC)
 
 				if (typeof PracticeCOMPFunctions[nodes[node].FUNC] == "function") { // in case of COMP node --> FUNC exist
-					nodes[node].MEM.value = PracticeCOMPFunctions[nodes[node].FUNC](nodes[node].MEM.array.map(function(item) { return item.value } )); // inline conversion from object to array of values
+					var arrayOfValues = nodes[node].MEM.array.map(function(item) { return item.value } ); // inline conversion from object to array of values
+					nodes[node].MEM.value = PracticeCOMPFunctions[nodes[node].FUNC](arrayOfValues);
 					Graph2.setNodeMem(node, nodes[node].MEM.value,Practice.compileMemoryToString(nodes[node].MEM.array)); // change visualisation mem (GRAPH2)
 				}
 				else { // in case of RES
@@ -259,7 +251,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 	Practice.compileMemoryToString = function(mem) {
 		var compiledMem = "";
 		for(var i = 0; i < mem.length; i++) {
-			compiledMem += comTypeToTemplate[mem[i].comType][0] + mem[i].value.toString() + comTypeToTemplate[mem[i].comType][1];
+			compiledMem += comTypeToTemplate[mem[i].comType][0] + mem[i].value.toString() + comTypeToTemplate[mem[i].comType][1] + ((mem[i].comType != "PT") ? ("<sub>"+ mem[i].numberOfShare.toString() + "</sub>") : ""); // in case of no plain text type, system append a subscript
 		}
 		return compiledMem;
 	};

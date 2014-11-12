@@ -20,12 +20,12 @@ angular.module("PracticeSimulator").controller("PracticeChartsController", funct
 
 	powerSet = PracticeSETOperations.PowerSet(nodesArray);
 	/*
-	 {
-	 "name": "nodo1-nodo2-nodo3"
-	 "risk": floatRisk
-	 "numberOfNodes": 3
-	 }
-	 */
+	{
+	"name": "nodo1-nodo2-nodo3"
+	"risk": floatRisk
+	"numberOfNodes": 3
+	}
+	*/
 
 	 var nodesRanking = [];
 

@@ -226,16 +226,17 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 				mem: parseInt(mem),
 				risk: parseFloat(risk),
 				func: func,
-				calculatedRisk: Number(0).toFixed(1), // for have 0.0 notation
-				highlight: false
+				calculatedRisk: Number(0).toFixed(1), // 0.0 notation
+				highlight: false,
+				numberOfShare: 0
 			});
 		} catch(err) {
 			throw { message: "Node already in graph or input not valid" };
 		}
 	};
 
-	Graph.addEdge = function(source, target, time, type, currentNumberOfSecret) {
-		try {
+	Graph.addEdge = function(source, target, time, type) {
+/*		try {
 			g.addEdge(camelCase(source)+"-"+camelCase(target)+"-"+time.toString()+"-"+currentNumberOfSecret.toString(), camelCase(source), camelCase(target), {
 				label: time.toString(),
 				from: camelCase(source),
@@ -247,14 +248,33 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		} catch(err) {
 			console.log(err);
 			throw { message: "Edge is already in the graph or input not valid" };
+		}*/
+		var currentNumberOfShare = 0;
+
+		if(type == "SS") {
+			currentNumberOfShare = g.node(camelCase(source)).numberOfShare = g.node(camelCase(source)).numberOfShare + 1;
 		}
+
+		try {
+			g.addEdge(camelCase(source)+"-"+camelCase(target)+"-"+time.toString(), camelCase(source), camelCase(target), {
+				label: time.toString(),
+				from: camelCase(source),
+				to: camelCase(target),
+				type: type,
+				highlight: false,
+				shareNumber: currentNumberOfShare
+			});
+		} catch(err) { // there is another edge with the same name
+			throw { message: "Communication already in protocol or input not valid" };
+		}
+
 	};
 
 	Graph.removeNode = function(id) {
 		try {
 			g.delNode(id);
 		} catch(err) {
-			throw { message: "Node not exists, input not valid. Graph cannot exits without nodes" };
+			throw { message: "Node not exists, input not valid or protocol cannot exist without nodes" };
 		}
 	};
 
@@ -262,7 +282,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		try {
 			g.delEdge(id);
 		} catch(err) {
-			throw { message: "Communication not exists" };
+			throw { message: "Communication not exist" };
 		}
 	};
 
