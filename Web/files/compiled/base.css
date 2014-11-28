@@ -22,6 +22,11 @@ body .dropdown-menu {
 .modalChart .modal-body {
   height: 91%;
 }
+@media (max-width: 992px) {
+  .modalChart .modal-body {
+    height: 86% !important;
+  }
+}
 .modalChart #practice-scatter-plot {
   width: 100%;
   height: 95%;
@@ -54,6 +59,9 @@ body .dropdown-menu {
 .modalRuntimeTable sub {
   color: forestgreen;
 }
+.modalPowerSetCollusion .Collusion {
+  color: red;
+}
 #main {
   height: 100%;
   width: 100%;
@@ -78,19 +86,20 @@ body .dropdown-menu {
   border-bottom: 3px solid #17cf00;
 }
 #main .page-header h1 {
-  font-size: 35px;
-  margin-bottom: 20px;
+  font-size: 30px;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 #main .page-header h1 #backendConnectionStyle {
-  top: 10px;
+  top: 7px;
   padding-right: 10px;
   color: #17cf00;
 }
 #main .page-header img {
   position: absolute;
-  top: 10px;
+  top: 8px;
   right: 10px;
-  height: 60px;
+  height: 50px;
 }
 #main #parametersStart {
   font-size: 1.5em;
@@ -311,7 +320,7 @@ body .dropdown-menu {
   vertical-align: sub;
   position: static;
 }
-#main #graphContainer #network svg .customNode .risk {
+#main #graphContainer #network svg .customNode .pmal {
   display: inline-block;
   font-size: 0.9em;
   width: 29px;
@@ -419,13 +428,13 @@ body .dropdown-menu {
   position: absolute;
   left: 0px;
   bottom: 0px;
+  transition: all linear 0.5s;
+}
+#main #graphContainer #simulationStatistics.ng-hide {
+  opacity: 0;
 }
 #main #graphContainer #simulationStatistics button {
   border-radius: 0;
-  transition: all linear 0.5s;
-}
-#main #graphContainer #simulationStatistics button.ng-hide {
-  opacity: 0;
 }
 #main #graphContainer #restartVisualizer {
   position: absolute;

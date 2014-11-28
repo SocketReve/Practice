@@ -163,37 +163,43 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 	Graph.setNodeDescription = function(id, description) {
 		var temp = g.node(id);
 		g.node(id).descr = description;
-		g.node(id).label = getNodeHTMLLabel(id, description, temp.type, temp.provider, temp.mem, temp.risk, temp.func, temp.calculatedRisk);
+		g.node(id).label = getNodeHTMLLabel(id, description, temp.type, temp.provider, temp.mem, temp.pmal, temp.func, temp.calculatedRisk);
 	};
 
 	Graph.setNodeMem = function(id, value, stringValue) {
 		var temp = g.node(id);
 		g.node(id).mem = parseInt(value);
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, stringValue, temp.risk, temp.func, temp.calculatedRisk);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, stringValue, temp.pmal, temp.func, temp.calculatedRisk);
 	};
 
 	Graph.setNodeProvider = function(id, provider) {
 		var temp = g.node(id);
 		g.node(id).provider = provider;
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, provider, temp.mem, temp.risk, temp.func, temp.calculatedRisk);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, provider, temp.mem, temp.pmal, temp.func, temp.calculatedRisk);
 	};
 
 	Graph.setNodeType = function(id, type) {
 		var temp = g.node(id);
 		g.node(id).type = type;
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, type, temp.provider, temp.mem, temp.risk, temp.func, temp.calculatedRisk);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, type, temp.provider, temp.mem, temp.pmal, temp.func, temp.calculatedRisk);
 	};
 
 	Graph.setNodeFunc = function(id, func) {
 		var temp = g.node(id);
 		g.node(id).func = func;
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, temp.risk, func, temp.calculatedRisk);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, temp.pmal, func, temp.calculatedRisk);
 	};
 
-	Graph.setNodeRisk = function(id, risk) {
+	Graph.setNodePMAL = function(id, pmal) {
 		var temp = g.node(id);
-		g.node(id).risk = parseFloat(risk);
-		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, risk, temp.func, temp.calculatedRisk);
+		g.node(id).pmal = parseFloat(pmal);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, pmal, temp.func, temp.calculatedRisk);
+	};
+
+	Graph.setNodeCalculatedRisk = function(id, calculatedRisk) {
+		var temp = g.node(id);
+		g.node(id).calculatedRisk = parseFloat(calculatedRisk);
+		g.node(id).label = getNodeHTMLLabel(id, temp.descr, temp.type, temp.provider, temp.mem, temp.pmal, temp.func, calculatedRisk);
 	};
 
 	Graph.resize = function() {
@@ -211,7 +217,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		zoom.event(svg.transition().duration(500));
 	};
 
-	Graph.addNode = function(id, description, type, provider, mem, risk, func) {
+	Graph.addNode = function(id, description, type, provider, mem, pmal, func) {
 		if(initialized == false) {
 			initialized = true;
 			model = renderer.run(g,d3.select("svg g g"));
@@ -219,16 +225,16 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		try {
 			g.addNode(camelCase(id.trim()), {
 				labelType: "html",
-				label: getNodeHTMLLabel(id, description, type, provider, mem, risk, func, Number(0).toFixed(1)),
+				label: getNodeHTMLLabel(id, description, type, provider, mem, pmal, func, Number(0).toFixed(1)),
 				descr: description,
 				type: type,
 				provider: provider.toUpperCase(),
 				mem: parseInt(mem),
-				risk: parseFloat(risk),
+				pmal: parseFloat(pmal),
 				func: func,
 				calculatedRisk: Number(0).toFixed(1), // 0.0 notation
 				highlight: false,
-				numberOfShare: 0
+				shares: 0
 			});
 		} catch(err) {
 			throw { message: "Node already in graph or input not valid" };
@@ -236,27 +242,14 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 	};
 
 	Graph.addEdge = function(source, target, time, type) {
-/*		try {
-			g.addEdge(camelCase(source)+"-"+camelCase(target)+"-"+time.toString()+"-"+currentNumberOfSecret.toString(), camelCase(source), camelCase(target), {
-				label: time.toString(),
-				from: camelCase(source),
-				to: camelCase(target),
-				type: type,
-				currentNumberOfSecret: currentNumberOfSecret,
-				highlight: false
-			});
-		} catch(err) {
-			console.log(err);
-			throw { message: "Edge is already in the graph or input not valid" };
-		}*/
 		var currentNumberOfShare = 0;
 
 		if(type == "SS") {
-			currentNumberOfShare = g.node(camelCase(source)).numberOfShare = g.node(camelCase(source)).numberOfShare + 1;
+			currentNumberOfShare = g.node(camelCase(source)).shares = g.node(camelCase(source)).shares + 1;
 		}
 
 		try {
-			g.addEdge(camelCase(source)+"-"+camelCase(target)+"-"+time.toString(), camelCase(source), camelCase(target), {
+			g.addEdge(camelCase(source)+"-"+camelCase(target)+"-"+time.toString()+"-"+currentNumberOfShare.toString(), camelCase(source), camelCase(target), {
 				label: time.toString(),
 				from: camelCase(source),
 				to: camelCase(target),
@@ -279,6 +272,12 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 	};
 
 	Graph.removeEdge = function(id) {
+		var source = g.edge(id).from;
+		var edgeType = g.edge(id).type;
+
+		if(edgeType == "SS") {
+			g.node(camelCase(source)).shares = g.node(camelCase(source)).shares - 1;
+		}
 		try {
 			g.delEdge(id);
 		} catch(err) {
@@ -344,7 +343,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		});
 	};
 
-	function getNodeHTMLLabel(id, description, type, provider, mem, risk, func, calculatedRisk) {
+	function getNodeHTMLLabel(id, description, type, provider, mem, pmal, func, calculatedRisk) {
 		var htmlTemplate =	"<div class='customNode'>";
 				htmlTemplate +=	"<span class='type "+ $sanitize(type) +"'> </span>";
 				htmlTemplate += "<span class='calcRisk'> "+ $sanitize(calculatedRisk) +" </span>";
@@ -352,7 +351,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 				htmlTemplate +=	"<span class='description'>"+ $sanitize(description) +"</span>";
 				htmlTemplate +=	"<span class='provider'>"+ $sanitize(provider.toUpperCase()) +"</span>";
 				htmlTemplate +=	"<span class='mem'>"+ $sanitize(mem)+ ((type == "COMP") ? (" | " + $sanitize(func)) : '' )+"</span>"; // I KNOW! -- SORRY :D
-				htmlTemplate +=	"<span class='risk'>"+ $sanitize(risk) +"</span>";
+				htmlTemplate +=	"<span class='pmal'>"+ $sanitize(pmal) +"</span>";
 			htmlTemplate +=	"</div>";
 		return htmlTemplate;
 	}

@@ -2,7 +2,7 @@
  * Created by Luca Reverberi - socketreve (thereve@gmail.com) on 27/10/14.
  */
 
-angular.module("PracticeSimulator").service("PracticeCOMPFunctions", function($q, $interval, Graph2) {
+angular.module("PracticeSimulator").service("PracticeCOMPFunctions", function() {
 	var PracticeCOMPFunctions = {};
 
 	PracticeCOMPFunctions.SUM = function(array) {

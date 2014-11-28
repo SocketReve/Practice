@@ -74,30 +74,22 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 					}
 				},
 				TYPE: rawElements.nodes[i].value.type,
-				RISK: rawElements.nodes[i].value.risk,
+				PMAL: rawElements.nodes[i].value.pmal,
 				PROVIDER: rawElements.nodes[i].value.provider,
 				MEM: {
-					array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [{value: rawElements.nodes[i].value.mem, comType: "PT", numberOfShare: 0}],
+					array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [{value: rawElements.nodes[i].value.mem, comType: "PT", shareIndex: 0}],
 					value: rawElements.nodes[i].value.mem
 				},
-				FUNC: rawElements.nodes[i].value.func
+				FUNC: rawElements.nodes[i].value.func,
+				SHARES: rawElements.nodes[i].value.shares
 			}
 		}
-
-		console.log(rawElements);
 
 		// find out and in edges
 		for (var i = 0; i < rawElements.edges.length; i++) {
 			nodes[rawElements.edges[i].value.to].IN[rawElements.edges[i].value.from] = true;
 			nodes[rawElements.edges[i].value.from].OUT[rawElements.edges[i].value.to] = true;
 		}
-
-/*		// take track shares on networks
-		for (var i = 0; i < rawElements.edges.length; i++) {
-			if(rawElements.edges[i].value.type == "SS") {
-				nodes[rawElements.edges[i].value.from].SHARES = nodes[rawElements.edges[i].value.from].SHARES + 1;
-			}
-		}*/
 
 		// calculate max time
 		for(var i = 0; i < rawElements.edges.length; i++) {
@@ -142,9 +134,11 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 
 	Practice.checkGraph = function() {
 		for( key in nodes ) {
+/*
 			if(nodes[key].TYPE == "COMP" && nodes[key].IN.length() <= 1) { // check that COMP nodes have at least 2 edge ingress
 				throw { message: "COMP node '"+ key + "' not have at least 2 input from 2 different nodes" };
 			}
+*/
 			if(nodes[key].TYPE == "RES" && nodes[key].OUT.length() > 0) { // check that RES nodes doesn't have exit edge
 				throw { message: "RES node '"+ key + "' can't have any exit communication" };
 			}
@@ -208,7 +202,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				if(!(mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] instanceof Array)) {
 					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] = [];
 				}
-				mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push({ value: nodes[instants[actualTimeSimulation][i].IN].MEM.value, comType: instants[actualTimeSimulation][i].COMTYPE, numberOfShare: instants[actualTimeSimulation][i].SHARENUMBER});
+				mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push({ value: nodes[instants[actualTimeSimulation][i].IN].MEM.value, comType: instants[actualTimeSimulation][i].COMTYPE, shareIndex: instants[actualTimeSimulation][i].SHARENUMBER});
 			}
 
 			// in questo ciclo for scandisco i vari nodi e, nel caso di nodo COMP, eseguo la funzione annessa.
@@ -249,12 +243,15 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 	};
 
 	Practice.compileMemoryToString = function(mem) {
+		if(typeof mem[0] !== "object") { // check if contain array of object. otherwise return simple string value of content
+			return mem.toString();
+		}
 		var compiledMem = "";
 		for(var i = 0; i < mem.length; i++) {
-			compiledMem += comTypeToTemplate[mem[i].comType][0] + mem[i].value.toString() + comTypeToTemplate[mem[i].comType][1] + ((mem[i].comType != "PT") ? ("<sub>"+ mem[i].numberOfShare.toString() + "</sub>") : ""); // in case of no plain text type, system append a subscript
+			compiledMem += comTypeToTemplate[mem[i].comType][0] + mem[i].value.toString() + comTypeToTemplate[mem[i].comType][1] + ((mem[i].comType != "PT") ? ("<sub>"+ mem[i].shareIndex.toString() + "</sub>") : ""); // in case of no plain text type, system append a subscript
 		}
 		return compiledMem;
-	};
+	}
 
 	Practice.isInitialized = function() {
 		return initialized;

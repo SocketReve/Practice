@@ -2,7 +2,7 @@
  * Created by Luca Reverberi - socketreve (thereve@gmail.com) on 03/10/14.
  */
 
-angular.module("PracticeSimulator").controller("PracticeMainController", function($scope, $modal, $interval, $timeout, $q, Graph2, Practice, PracticeCOMPFunctions){
+angular.module("PracticeSimulator").controller("PracticeMainController", function($scope, $modal, $interval, $timeout, $q, Graph2, Practice, PracticeCOMPFunctions, PracticeShapley){
 	// init scope var
 	$scope.nameNew = "";
 	$scope.descrizioneNew = "";
@@ -10,7 +10,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.toNew = "";
 	$scope.memNew = 0;
 	$scope.timeNew = 0;
-	$scope.riskNew = 0.1;
+	$scope.maliciousProbabilityNew = 0.1;
 	$scope.groupOfNodeNew = "";
 	$scope.newGroupName = "";
 	$scope.nodeGroupModifier = "";
@@ -21,7 +21,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.nodeFuncModifier = "";
 	$scope.nodeNameModifier = "";
 	$scope.nodeMemModifier = 0;
-	$scope.nodeRiskModifier = 0.1;
+	$scope.nodeMaliciousProbabilityModifier = 0.1;
 	$scope.nodeDescriptionModifier = "";
 	$scope.edgeIdModifier = "";
 	$scope.edgeLabelModifier = 0;
@@ -45,14 +45,14 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 			if (Graph2.isInitialized() == false) {
 				new Graph2().then(function () {
 					try {
-						Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.riskNew, $scope.nodeFunctionNew);
+						Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.maliciousProbabilityNew, $scope.nodeFunctionNew);
 
 						// clear input form
 						$scope.nameNew = "";
 						$scope.descrizioneNew = "";
 						$scope.providerNodeNew = "";
 						$scope.memNew = 0;
-						$scope.riskNew = 0.1;
+						$scope.maliciousProbabilityNew = 0.1;
 
 						Graph2.redesign();
 						$timeout(function(){
@@ -66,14 +66,14 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				});
 			} else {
 				try {
-					Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.riskNew, $scope.nodeFunctionNew);
+					Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.maliciousProbabilityNew, $scope.nodeFunctionNew);
 
 					// clear input form
 					$scope.nameNew = "";
 					$scope.descrizioneNew = "";
 					$scope.providerNodeNew = "";
 					$scope.memNew = 0;
-					$scope.riskNew = 0.1;
+					$scope.maliciousProbabilityNew = 0.1;
 
 					Graph2.redesign();
 					$timeout(function(){
@@ -192,7 +192,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				new Graph2().then(function () {
 					try {
 						for(var i = 0; i < graphObj.nodes.length; i++) {
-							Graph2.addNode(graphObj.nodes[i].id, graphObj.nodes[i].value.descr, graphObj.nodes[i].value.type, graphObj.nodes[i].value.provider, graphObj.nodes[i].value.mem, graphObj.nodes[i].value.risk, graphObj.nodes[i].value.func);
+							Graph2.addNode(graphObj.nodes[i].id, graphObj.nodes[i].value.descr, graphObj.nodes[i].value.type, graphObj.nodes[i].value.provider, graphObj.nodes[i].value.mem, graphObj.nodes[i].value.pmal, graphObj.nodes[i].value.func);
 						}
 						for(var i = 0; i < graphObj.edges.length; i++) {
 							Graph2.addEdge(graphObj.edges[i].value.from, graphObj.edges[i].value.to, graphObj.edges[i].value.label, graphObj.edges[i].value.type, graphObj.edges[i].value.currentNumberOfSecret);
@@ -223,10 +223,8 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 
 	$scope.checkGraph = function() {
 		if(Graph2.isInitialized()) {
+			new Practice();
 			try {
-				if(!Practice.isInitialized()) {
-					new Practice();
-				}
 				Practice.checkGraph();
 				customAlert({ type: "success", message: "Everything OK" })
 			}
@@ -242,9 +240,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.runSimulation = function() {
 		try {
 			Graph2.resize();
-			if(!Practice.isInitialized()) {
-				new Practice();
-			}
+			new Practice();
 			Practice.checkGraph();
 
 
@@ -284,6 +280,15 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		}
 	};
 
+	$scope.estimateRisk = function() {
+		new Practice();
+		var nodes = PracticeShapley(Practice.getNodes());
+		for(var i = 0; i < nodes.length; i++) {
+			Graph2.setNodeCalculatedRisk(nodes[i].id, nodes[i].risk);
+		}
+		Graph2.redesign();
+	};
+
 	$scope.simulationStep = function() {
 		/*// rebuild table simulation table
 		var temp = Practice.getNodes();
@@ -300,6 +305,25 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 			controller: "PracticeRuntimeTableController",
 			size: "lg",
 			windowClass: "modalRuntimeTable",
+			resolve: {
+				runTimeNodePerInstantsTable: function () {
+					return Practice.getTableNodePerInstants();
+				}
+			}
+		});
+
+		modalInstance.result.then(function (result) {
+		}, function () {
+			console.log('Chart Modal dismissed at: ' + new Date());
+		});
+	};
+
+	$scope.generatePowerSetTable = function() {
+		var modalInstance = $modal.open({
+			templateUrl: 'partial/ModalPowerSetCollusionPartial.htm',
+				controller: "PracticePowerSetCollusionController",
+			size: "lg",
+			windowClass: "modalPowerSetCollusion",
 			resolve: {
 				runTimeNodePerInstantsTable: function () {
 					return Practice.getTableNodePerInstants();
@@ -336,7 +360,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 					Graph2.setNodeType($scope.nodeNameModifier, $scope.nodeTypeModifier);
 					Graph2.setNodeFunc($scope.nodeNameModifier, $scope.nodeFuncModifier);
 					Graph2.setNodeMem($scope.nodeNameModifier, $scope.nodeMemModifier);
-					Graph2.setNodeRisk($scope.nodeNameModifier, $scope.nodeRiskModifier);
+					Graph2.setNodePMAL($scope.nodeNameModifier, $scope.nodeMaliciousProbabilityModifier);
 				}
 			} catch (err) {
 				console.log(err);
@@ -414,7 +438,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				$scope.nodeGroupModifier = node.provider;
 				console.log(node);
 				$scope.nodeMemModifier = node.mem;
-				$scope.nodeRiskModifier = node.risk;
+				$scope.nodeMaliciousProbabilityModifier = node.pmal;
 			});
 		}
 
@@ -443,13 +467,13 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				$scope.showParameters(false);
 				$scope.showModifier(false);
 			}
-			else if(e.keyCode == 83 && $scope.simulationStepRunning == true) { // key 's'
+			/*else if(e.keyCode == 83 && $scope.simulationStepRunning == true) { // key 's'
 				$scope.simulationStep();
 				$scope.$apply();
 			}
 			else if(e.keyCode == 84 && ($scope.simulationRunning == true || $scope.simulationStepRunning == true)) { // key 't'
 				$scope.generateRuntimeTable();
-			}
+			}*/
 		});
 	};
 });

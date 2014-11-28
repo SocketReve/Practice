@@ -22,7 +22,7 @@ angular.module("PracticeSimulator").controller("PracticeChartsController", funct
 	/*
 	{
 	"name": "nodo1-nodo2-nodo3"
-	"risk": floatRisk
+	"pmal": floatProbabilityMalicious
 	"numberOfNodes": 3
 	}
 	*/
@@ -32,14 +32,14 @@ angular.module("PracticeSimulator").controller("PracticeChartsController", funct
 	// build array for d3 scatter visualization
 	for(var i = 0; i < powerSet.length-1; i++) { // -1 because I don't want to take empty object in power set
 		var name = "";
-		var risk = 1.0;
+		var prob = 1.0;
 		for(var j = 0; j < powerSet[i].length; j++) {
 			name = name + ((name != "") ? "-" : "") + powerSet[i][j].ID;
-			risk = risk * powerSet[i][j].RISK;
+			prob = prob * powerSet[i][j].PMAL;
 		}
 		nodesRanking.push({
 			name: name,
-			y: risk,
+			y: prob,
 			x: powerSet[i].length
 		});
 	}
@@ -49,19 +49,19 @@ angular.module("PracticeSimulator").controller("PracticeChartsController", funct
 		var chart = new CanvasJS.Chart("practice-scatter-plot",
 			{
 				title:{
-					text: "Cost Impact on Business for leaked information",
+					text: "Probability of Collusion",
 					fontFamily: "arial black",
 					fontColor: "DarkSlateGrey",
 					fontSize: 15
 				},
 				axisX: {
-					title:"Number of node aggregates",
+					title:"Number of actors in coalition",
 					titleFontFamily: "arial",
-					titleFontSize: 12
-
+					titleFontSize: 12,
+					interval: 1
 				},
 				axisY:{
-					title: "Risk",
+					title: "Probability",
 					titleFontFamily: "arial",
 					titleFontSize: 12
 				},
@@ -70,7 +70,7 @@ angular.module("PracticeSimulator").controller("PracticeChartsController", funct
 					{
 						type: "scatter",
 						color: "#17cf00",
-						toolTipContent: "<span style='\"'color: {color};'\"'><strong>{name}</strong></span> <br/> <strong>Risk</strong> {y}<br/> <strong>Number of nodes aggregates</strong> {x} ",
+						toolTipContent: "<span style='\"'color: {color};'\"'><strong>{name}</strong></span> <br/> <strong>Probability</strong> {y}<br/> <strong>Number of actors aggregates</strong> {x} ",
 						dataPoints: nodesRanking
 					}
 				],

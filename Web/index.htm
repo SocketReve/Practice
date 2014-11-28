@@ -8,13 +8,13 @@
 		<link href="files/css/vendor/loading-bar.min.css" rel="stylesheet">
 		<link href="files/compiled/base.min.css" rel="stylesheet">
 		<link href="files/images/icon2.png" rel="shortcut icon" type="image/x-icon" />
-		<title> Practice Network Simulator </title>
+		<title> Practice Process Simulator </title>
 	</head>
 	<body>
 		<input type="file" />
 		<div id="main" ng-controller="PracticeMainController">
 			<div class="text-center page-header">
-				<h1><span id="backendConnectionStyle" class="glyphicon glyphicon-cloud"></span> PRACTICE <small>Network Simulator</small></h1>
+				<h1><span id="backendConnectionStyle" class="glyphicon glyphicon-cloud"></span> PRACTICE <small>Process Simulator</small></h1>
 				<img src="files/images/eu_flag.jpg" class="hidden-xs"/>
 			</div>
 
@@ -57,10 +57,10 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="riskInput" class="control-label col-lg-2 col-md-2"> Risk: </label>
+						<label for="maliciousProbabilityInput" class="control-label col-lg-2 col-md-2"> PMAL: </label>
 
 						<div class="col-lg-10">
-							<input required ng-model="riskNew" type="number" step="0.1" min="0" max="1" class="form-control" id="riskInput" placeholder="Risk">
+							<input required ng-model="maliciousProbabilityNew" type="number" step="0.1" min="0" max="1" class="form-control" id="maliciousProbabilityInput" placeholder="Node Malicious Probability">
 						</div>
 					</div>
 
@@ -163,14 +163,6 @@
 						</div>
 					</div>
 
-					<!--<div ng-show="edgeTypeNew == 'SS'" class="form-group">
-						<label for="numberOfSecret" class="control-label col-lg-2 col-md-2"> N. of Secrets: </label>
-						<br>
-						<div class="col-lg-10">
-							<input required ng-model="numberOfSecret" type="number" min="1" class="form-control" id="numberOfSecret" placeholder="Number of Secrets">
-						</div>
-					</div>-->
-
 					<div class="form-group">
 						<div class="col-lg-offset-2 col-md-offset-2 col-lg-10 col-md-10">
 							<button type="submit" class="btn btn-block btn-primary">Add Communication</button>
@@ -186,9 +178,10 @@
 				</div>
 
 				<div id="simulationButtons">
-					<button ng-show="isGraphInitialized() && !(simulationRunning || simulationStepRunning)" type="button" ng-click="checkGraph()" class="btn btn-block btn-default"> Check Graph Coherence </button>
+					<button ng-show="isGraphInitialized() && !(simulationRunning || simulationStepRunning)" type="button" ng-click="checkGraph()" class="btn btn-block btn-default"> Check Process Coherence </button>
 					<button ng-show="isGraphInitialized() && !(simulationRunning || simulationStepRunning)" type="button" ng-click="runSimulation()" class="btn btn-block btn-default"> Run Visual Simulation </button>
-					<div ng-show="simulationRunning" class="spinner">
+					<button ng-show="isGraphInitialized() && !(simulationRunning || simulationStepRunning)" type="button" ng-click="estimateRisk()" class="btn btn-block btn-default"> Estimate Risk </button>
+						<div ng-show="simulationRunning" class="spinner">
 						<div class="bounce1"></div>
 						<div class="bounce2"></div>
 						<div class="bounce3"></div>
@@ -207,9 +200,10 @@
 					</svg>
 				</div>
 
-				<div id="simulationStatistics">
-					<button ng-show="isGraphInitialized()" type="button" ng-click="generatePowerSet()" class="btn btn-block btn-default"> Simulation Risk Set </button>
+				<div ng-show="isGraphInitialized()" id="simulationStatistics">
+					<button type="button" ng-click="generatePowerSet()" class="btn btn-block btn-default"> Coalitions Risk Sets </button>
 					<button ng-show="simulationStepRunning" type="button" ng-click="generateRuntimeTable()" class="btn btn-block btn-default"> Simulation Table </button>
+					<button ng-show="simulationStepRunning" type="button" ng-click="generatePowerSetTable()" class="btn btn-block btn-default"> Collusion Power Set </button>
 				</div>
 
 				<div id="resetZoom">
@@ -222,7 +216,7 @@
 						<button type="button" ng-click="showModifier(false)" class="close"><span aria-hidden="true">&times;</span></button>
 					</div>
 					<br>
-					<div ng-show="modifierIsNode" class="col-lg-3 col-md-3 col-lg-offset-1 col-md-offset-1">
+					<div ng-show="modifierIsNode" class="col-lg-3 col-md-3 col-sm-3 col-lg-offset-1 col-md-offset-1 col-sm-offset-1">
 						<div class="input-group">
 							<span class="input-group-addon"> Name </span>
 							<input disabled ng-model="nodeNameModifier" type="text" class="form-control" placeholder="Name">
@@ -233,7 +227,7 @@
 							<input ng-required="modifierIsNode" ng-model="nodeDescriptionModifier" type="text" class="form-control" placeholder="Description">
 						</div>
 					</div>
-					<div ng-show="modifierIsEdge" class="col-lg-3 col-md-3 col-lg-offset-1 col-md-offset-1">
+					<div ng-show="modifierIsEdge" class="col-lg-3 col-md-3 col-sm-3 col-lg-offset-1 col-md-offset-1 col-sm-offset-1">
 						<div class="input-group">
 							<span class="input-group-addon"> Id </span>
 							<input disabled ng-model="edgeIdModifier" type="text" class="form-control" placeholder="Edge Id">
@@ -244,7 +238,7 @@
 							<input ng-required="modifierIsEdge" ng-model="edgeLabelModifier" type="number" class="form-control" placeholder="Time of communication">
 						</div>
 					</div>
-					<div ng-show="modifierIsEdge" class="col-lg-3 col-md-3">
+					<div ng-show="modifierIsEdge" class="col-lg-3 col-md-3 col-sm-3">
 						<div class="dropup" dropdown>
 							<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
 								<strong>Type:</strong> {{ edgeTypeModifier }}
@@ -258,7 +252,7 @@
 							</ul>
 						</div>
 					</div>
-					<div ng-show="modifierIsNode" class="col-lg-3 col-md-3">
+					<div ng-show="modifierIsNode" class="col-lg-3 col-md-3 col-sm-3">
 						<div class="dropup" dropdown>
 							<button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
 								<strong>Type:</strong> {{ nodeTypeModifier }}
@@ -281,22 +275,22 @@
 							<input ng-required="modifierIsNode" ng-model="nodeGroupModifier" type="text" class="form-control" placeholder="Node Group">
 						</div>
 					</div>
-					<div ng-show="modifierIsNode" class="col-lg-2 col-md-2">
+					<div ng-show="modifierIsNode" class="col-lg-2 col-md-2 col-sm-2">
 						<div class="input-group">
 							<span class="input-group-addon"> Mem </span>
 							<input ng-required="modifierIsNode" ng-model="nodeMemModifier" type="number" class="form-control" placeholder="Node Mem">
 						</div>
 						<br>
 						<div class="input-group">
-							<span class="input-group-addon"> Risk </span>
-							<input ng-required="modifierIsNode" ng-model="nodeRiskModifier" step="0.1" min="0" max="1" type="number" class="form-control" placeholder="Node Risk">
+							<span class="input-group-addon"> PMAL </span>
+							<input ng-required="modifierIsNode" ng-model="nodeMaliciousProbabilityModifier" step="0.1" min="0" max="1" type="number" class="form-control" placeholder="Node Malicious Probability">
 						</div>
 
 					</div>
-					<div class="col-lg-1 col-md-1">
+					<div class="col-lg-1 col-md-1 col-sm-1">
 						<button type="submit" id="modificationButton" class="btn btn-primary"> Save </button>
 					</div>
-					<div class="col-lg-1 col-md-1">
+					<div class="col-lg-1 col-md-1 col-sm-1">
 						<button type="button" id="deleteButton" ng-click="removeElement()" class="btn btn-danger"> Delete {{ ((modifierIsNode) ? "Node" : "Edge") }} </button>
 					</div>
 				</form>

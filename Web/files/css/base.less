@@ -1,4 +1,6 @@
-html,body { 
+@import "variables.less";
+
+html,body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
@@ -27,10 +29,14 @@ body {
 .modalChart {
 	.modal-dialog, .modal-content{
 		height: 95%;
+
 	}
 
 	.modal-body {
 		height: 91%;
+		@media (max-width: @screen-md-min) {
+			height: 86% !important;
+		}
 	}
 
 	#practice-scatter-plot {
@@ -71,6 +77,12 @@ body {
 	}
 }
 
+.modalPowerSetCollusion {
+	.Collusion {
+		color: red;
+	}
+}
+
 #main {
 	height: 100%;
 	width: 100%;
@@ -97,11 +109,12 @@ body {
 		border-bottom: 3px solid @green;
 
 		h1 {
-			font-size: 35px;
-			margin-bottom: 20px;
+			font-size: 30px;
+			margin-top: 15px;
+			margin-bottom: 15px;
 
 			#backendConnectionStyle {
-				top: 10px;
+				top: 7px;
 				padding-right: 10px;
 				color: @green;
 			}
@@ -109,9 +122,9 @@ body {
 
 		img {
 			position: absolute;
-			top: 10px;
+			top: 8px;
 			right: 10px;
-			height: 60px;
+			height: 50px;
 		}
 	}
 
@@ -359,7 +372,7 @@ body {
 						}
 					}
 
-					.risk {
+					.pmal {
 						display: inline-block;
 						font-size: 0.9em;
 						width: 29px;
@@ -479,14 +492,14 @@ body {
 			position: absolute;
 			left: 0px;
 			bottom: 0px;
+			transition: all linear 0.5s;
+
+			&.ng-hide {
+				opacity: 0;
+			}
 
 			button {
 				border-radius: 0;
-				transition: all linear 0.5s;
-
-				&.ng-hide {
-					opacity: 0;
-				}
 			}
 		}
 
