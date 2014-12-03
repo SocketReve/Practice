@@ -214,7 +214,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				if (typeof PracticeCOMPFunctions[nodes[node].FUNC] == "function") { // in case of COMP node --> FUNC exist
 					var arrayOfValues = nodes[node].MEM.array.map(function(item) { return item.value } ); // inline conversion from object to array of values
 					nodes[node].MEM.value = PracticeCOMPFunctions[nodes[node].FUNC](arrayOfValues);
-					Graph2.setNodeMem(node, nodes[node].MEM.value,Practice.compileMemoryToString(nodes[node].MEM.array)); // change visualisation mem (GRAPH2)
+					Graph2.setNodeMem(node, nodes[node].MEM.value ,Practice.compileMemoryToString(nodes[node].MEM.array)); // change visualisation mem (GRAPH2)
 				}
 				else { // in case of RES
 					Graph2.setNodeMem(node, 0,Practice.compileMemoryToString(nodes[node].MEM.array));
