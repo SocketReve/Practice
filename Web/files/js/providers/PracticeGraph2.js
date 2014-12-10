@@ -217,7 +217,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		zoom.event(svg.transition().duration(500));
 	};
 
-	Graph.addNode = function(id, description, type, provider, mem, pmal, func) {
+	Graph.addNode = function(id, description, type, provider, mem, pmal, func, shares) {
 		if(initialized == false) {
 			initialized = true;
 			model = renderer.run(g,d3.select("svg g g"));
@@ -234,17 +234,15 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 				func: func,
 				calculatedRisk: Number(0).toFixed(1), // 0.0 notation
 				highlight: false,
-				shares: 0
+				shares: shares
 			});
 		} catch(err) {
-			throw { message: "Node already in graph or input not valid" };
+			throw { message: "Node already in graph or input not valid", obj: err};
 		}
 	};
 
-	Graph.addEdge = function(source, target, time, type) {
-		var currentNumberOfShare = 0;
-
-		if(type == "SS") {
+	Graph.addEdge = function(source, target, time, type, currentNumberOfShare) {
+		if (type == "SS" && currentNumberOfShare == 0) {
 			currentNumberOfShare = g.node(camelCase(source)).shares = g.node(camelCase(source)).shares + 1;
 		}
 
@@ -258,7 +256,8 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 				shareNumber: currentNumberOfShare
 			});
 		} catch(err) { // there is another edge with the same name
-			throw { message: "Communication already in protocol or input not valid" };
+			g.node(camelCase(source)).shares = g.node(camelCase(source)).shares - 1; // roll back
+			throw { message: "Communication already in protocol or input not valid", obj: err};
 		}
 
 	};
@@ -267,7 +266,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		try {
 			g.delNode(id);
 		} catch(err) {
-			throw { message: "Node not exists, input not valid or protocol cannot exist without nodes" };
+			throw { message: "Node not exists, input not valid or protocol cannot exist without nodes", obj: err};
 		}
 	};
 
@@ -281,7 +280,7 @@ angular.module("PracticeSimulator").factory("Graph2", function($q, $timeout, $wi
 		try {
 			g.delEdge(id);
 		} catch(err) {
-			throw { message: "Communication not exist" };
+			throw { message: "Communication not exist", obj: err};
 		}
 	};
 

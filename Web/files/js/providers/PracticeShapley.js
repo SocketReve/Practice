@@ -4,6 +4,23 @@
 
 angular.module("PracticeSimulator").factory("PracticeShapley", function() {
 	var Shapley = function(nodes) {
+/*
+		var estimatedRiskPerNode = [];
+
+		for(var node in nodes) {
+			console.log(node);
+			console.log(nodes[node].RISK);
+			estimatedRiskPerNode.push({
+				id: node,
+				risk: Math.random().toFixed(2)
+			});
+		}
+
+		return estimatedRiskPerNode;
+*/
+
+		// NOT MY CODE:
+
 		var vChar = [];
 		var vNum = [];
 		var vCharF = [];
@@ -152,6 +169,7 @@ angular.module("PracticeSimulator").factory("PracticeShapley", function() {
 		}
 
 		return estimatedRiskPerNode;
+
 	};
 
 	return Shapley;

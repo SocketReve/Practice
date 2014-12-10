@@ -11,6 +11,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.memNew = 0;
 	$scope.timeNew = 0;
 	$scope.maliciousProbabilityNew = 0.1;
+	$scope.providerNodeNew = "";
 	$scope.groupOfNodeNew = "";
 	$scope.newGroupName = "";
 	$scope.nodeGroupModifier = "";
@@ -19,6 +20,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	//$scope.numberOfSecret = 1;
 	$scope.nodeTypeModifier = "COMP";
 	$scope.nodeFuncModifier = "";
+	$scope.nodeFunctionNew = "";
 	$scope.nodeNameModifier = "";
 	$scope.nodeMemModifier = 0;
 	$scope.nodeMaliciousProbabilityModifier = 0.1;
@@ -45,7 +47,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 			if (Graph2.isInitialized() == false) {
 				new Graph2().then(function () {
 					try {
-						Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.maliciousProbabilityNew, $scope.nodeFunctionNew);
+						Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.maliciousProbabilityNew, $scope.nodeFunctionNew, 0);
 
 						// clear input form
 						$scope.nameNew = "";
@@ -66,7 +68,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				});
 			} else {
 				try {
-					Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.maliciousProbabilityNew, $scope.nodeFunctionNew);
+					Graph2.addNode($scope.nameNew.trim(), $scope.descrizioneNew.trim(), $scope.nodeTypeNew, $scope.providerNodeNew.trim(), $scope.memNew, $scope.maliciousProbabilityNew, $scope.nodeFunctionNew, 0);
 
 					// clear input form
 					$scope.nameNew = "";
@@ -95,7 +97,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 	$scope.addCommunication = function() {
 		if($scope.fromNew.trim() != "" && $scope.toNew.trim() != "" /*&& $scope.numberOfSecret != 0*/) {
 			try {
-				Graph2.addEdge($scope.fromNew.trim(), $scope.toNew.trim(), $scope.timeNew, $scope.edgeTypeNew);
+				Graph2.addEdge($scope.fromNew.trim(), $scope.toNew.trim(), $scope.timeNew, $scope.edgeTypeNew, 0);
 /*
 				for(var i = 1; i <= $scope.numberOfSecret; i++) {
 					Graph2.addEdge($scope.fromNew.trim(), $scope.toNew.trim(), $scope.timeNew, $scope.edgeTypeNew);
@@ -192,10 +194,10 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				new Graph2().then(function () {
 					try {
 						for(var i = 0; i < graphObj.nodes.length; i++) {
-							Graph2.addNode(graphObj.nodes[i].id, graphObj.nodes[i].value.descr, graphObj.nodes[i].value.type, graphObj.nodes[i].value.provider, graphObj.nodes[i].value.mem, graphObj.nodes[i].value.pmal, graphObj.nodes[i].value.func);
+							Graph2.addNode(graphObj.nodes[i].id, graphObj.nodes[i].value.descr, graphObj.nodes[i].value.type, graphObj.nodes[i].value.provider, graphObj.nodes[i].value.mem, graphObj.nodes[i].value.pmal, graphObj.nodes[i].value.func, graphObj.nodes[i].value.shares);
 						}
 						for(var i = 0; i < graphObj.edges.length; i++) {
-							Graph2.addEdge(graphObj.edges[i].value.from, graphObj.edges[i].value.to, graphObj.edges[i].value.label, graphObj.edges[i].value.type, graphObj.edges[i].value.currentNumberOfSecret);
+							Graph2.addEdge(graphObj.edges[i].value.from, graphObj.edges[i].value.to, graphObj.edges[i].value.label, graphObj.edges[i].value.type, graphObj.edges[i].value.shareNumber);
 						}
 
 
@@ -204,7 +206,6 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 							bindCustomEvents();
 							Graph2.resize();
 						},500);
-
 					}
 					catch (err) {
 						customAlert(err);
@@ -304,12 +305,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 			templateUrl: 'partial/ModalRuntimeTablePartial.htm',
 			controller: "PracticeRuntimeTableController",
 			size: "lg",
-			windowClass: "modalRuntimeTable",
-			resolve: {
-				runTimeNodePerInstantsTable: function () {
-					return Practice.getTableNodePerInstants();
-				}
-			}
+			windowClass: "modalRuntimeTable"
 		});
 
 		modalInstance.result.then(function (result) {
@@ -323,12 +319,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 			templateUrl: 'partial/ModalPowerSetCollusionPartial.htm',
 				controller: "PracticePowerSetCollusionController",
 			size: "lg",
-			windowClass: "modalPowerSetCollusion",
-			resolve: {
-				runTimeNodePerInstantsTable: function () {
-					return Practice.getTableNodePerInstants();
-				}
-			}
+			windowClass: "modalPowerSetCollusion"
 		});
 
 		modalInstance.result.then(function (result) {
@@ -337,7 +328,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		});
 	};
 
-	$scope.generatePowerSet = function() {
+	$scope.generateChart = function() {
 		var modalInstance = $modal.open({
 			templateUrl: 'partial/ModalChartPartial.htm',
 			controller: "PracticeChartsController",
@@ -461,19 +452,591 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		}
 
 		// bind escape key for remove modifier div
-		angular.element(document).off("keyup"); // rebind
-		angular.element(document).on("keyup", function(e){
+		angular.element(document).off("keydown"); // rebind
+		angular.element(document).on("keydown", function(e){
+			console.log(e);
 			if(e.keyCode == 27) {
 				$scope.showParameters(false);
 				$scope.showModifier(false);
 			}
-			/*else if(e.keyCode == 83 && $scope.simulationStepRunning == true) { // key 's'
-				$scope.simulationStep();
-				$scope.$apply();
+			else if(e.keyCode == 73 && e.metaKey) { // key cmd+'i' == thesis simulator
+				$scope.showParameters(true);
+
+				var json = {
+					"nodes": [{
+						"id": "I1",
+						"value": {
+							"descr": "fornitore di asfalto",
+							"type": "IN",
+							"provider": "-",
+							"mem": 100,
+							"pmal": 0.8,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 2
+						}
+					}, {
+						"id": "I2",
+						"value": {
+							"descr": "fornitore di attrezzi",
+							"type": "IN",
+							"provider": "-",
+							"mem": 50,
+							"pmal": 0.8,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 2
+						}
+					}, {
+						"id": "I3",
+						"value": {
+							"descr": "fornitore di macchine utensili",
+							"type": "IN",
+							"provider": "-",
+							"mem": 20,
+							"pmal": 0.9,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 2
+						}
+					}, {
+						"id": "I4",
+						"value": {
+							"descr": "fornitore di asfalto",
+							"type": "IN",
+							"provider": "-",
+							"mem": 95,
+							"pmal": 0.7,
+							"func": "",
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 2
+						}
+					}, {
+						"id": "I5",
+						"value": {
+							"descr": "fornitore di attrezzi",
+							"type": "IN",
+							"provider": "-",
+							"mem": 40,
+							"pmal": 0.6,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 2
+						}
+					}, {
+						"id": "I6",
+						"value": {
+							"descr": "fornitore di macchine utensili",
+							"type": "IN",
+							"provider": "-",
+							"mem": 45,
+							"pmal": 0.6,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 2
+						}
+					}, {
+						"id": "C1",
+						"value": {
+							"descr": "primo offerente - 1",
+							"type": "COMP",
+							"provider": "-",
+							"mem": 0,
+							"pmal": 0.4,
+							"func": "SUM",
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "C2",
+						"value": {
+							"descr": "primo offerente - 2",
+							"type": "COMP",
+							"provider": "-",
+							"mem": 0,
+							"pmal": 0.4,
+							"func": "SUM",
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "C3",
+						"value": {
+							"descr": "secondo offerente - 1",
+							"type": "COMP",
+							"provider": "-",
+							"mem": 0,
+							"pmal": 0.3,
+							"func": "SUM",
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "C4",
+						"value": {
+							"descr": "secondo offerente - 2",
+							"type": "COMP",
+							"provider": "-",
+							"mem": 0,
+							"pmal": 0.3,
+							"func": "SUM",
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "C5",
+						"value": {
+							"descr": "primo offerente - 3",
+							"type": "COMP",
+							"provider": "provider sicuro",
+							"mem": 0,
+							"pmal": 0.1,
+							"func": "SUM",
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "C6",
+						"value": {
+							"descr": "secondo offerente - 3",
+							"type": "COMP",
+							"provider": "provider sicuro",
+							"mem": 0,
+							"pmal": 0.1,
+							"func": "SUM",
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "C7",
+						"value": {
+							"descr": "ente appaltante",
+							"type": "COMP",
+							"provider": "-",
+							"mem": 0,
+							"pmal": 0.1,
+							"func": "MIN",
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "R1",
+						"value": {
+							"descr": "agente",
+							"type": "RES",
+							"provider": "-",
+							"mem": 0,
+							"pmal": 0.1,
+							"func": null,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}],
+					"edges": [{
+						"id": "I1-C1-0-1",
+						"value": {
+							"label": "0",
+							"from": "I1",
+							"to": "C1",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 1
+						}
+					}, {
+						"id": "I1-C2-0-2",
+						"value": {
+							"label": "0",
+							"from": "I1",
+							"to": "C2",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 2
+						}
+					}, {
+						"id": "I2-C1-0-1",
+						"value": {
+							"label": "0",
+							"from": "I2",
+							"to": "C1",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 1
+						}
+					}, {
+						"id": "I2-C2-0-2",
+						"value": {
+							"label": "0",
+							"from": "I2",
+							"to": "C2",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 2
+						}
+					}, {
+						"id": "I3-C1-0-1",
+						"value": {
+							"label": "0",
+							"from": "I3",
+							"to": "C1",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 1
+						}
+					}, {
+						"id": "I3-C2-0-2",
+						"value": {
+							"label": "0",
+							"from": "I3",
+							"to": "C2",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 2
+						}
+					}, {
+						"id": "I4-C3-0-1",
+						"value": {
+							"label": "0",
+							"from": "I4",
+							"to": "C3",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 1
+						}
+					}, {
+						"id": "I5-C3-0-1",
+						"value": {
+							"label": "0",
+							"from": "I5",
+							"to": "C3",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 1
+						}
+					}, {
+						"id": "I6-C3-0-1",
+						"value": {
+							"label": "0",
+							"from": "I6",
+							"to": "C3",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 1
+						}
+					}, {
+						"id": "I4-C4-0-1",
+						"value": {
+							"label": "0",
+							"from": "I4",
+							"to": "C4",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 1
+						}
+					}, {
+						"id": "I5-C4-0-2",
+						"value": {
+							"label": "0",
+							"from": "I5",
+							"to": "C4",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 2
+						}
+					}, {
+						"id": "I6-C4-0-2",
+						"value": {
+							"label": "0",
+							"from": "I6",
+							"to": "C4",
+							"type": "SS",
+							"highlight": false,
+							"shareNumber": 2
+						}
+					}, {
+						"id": "C1-C5-1-0",
+						"value": {
+							"label": "1",
+							"from": "C1",
+							"to": "C5",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "C2-C5-1-0",
+						"value": {
+							"label": "1",
+							"from": "C2",
+							"to": "C5",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "C3-C6-1-1",
+						"value": {
+							"label": "1",
+							"from": "C3",
+							"to": "C6",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "C4-C6-1-0",
+						"value": {
+							"label": "1",
+							"from": "C4",
+							"to": "C6",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "C5-C7-2-0",
+						"value": {
+							"label": "2",
+							"from": "C5",
+							"to": "C7",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "C6-C7-2-0",
+						"value": {
+							"label": "2",
+							"from": "C6",
+							"to": "C7",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "C7-R1-3-0",
+						"value": {
+							"label": "3",
+							"from": "C7",
+							"to": "R1",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}]
+				};
+
+				var i = 0, j = 0, e = 0;
+				var timeTimeoutString = 50,
+					timeTimeoutValue = 30,
+					timeTimeoutStringCom = 100,
+					timeTimeoutValueCom = 1000;
+				var timeoutNodes, timeoutEdges;
+
+/*
+				var typewriter = function(char) {
+					$scope.nameNew += char;
+					console.log(char);
+					$scope.$apply();
+					if(i == json.nodes[j].id.length-1) {
+						clearTimeout(timeout);
+						setTimeout()
+					} else {
+						setTimeout(typewriter, timeTimeoutString, json.nodes[j].id[++i]);
+					}
+				};
+
+				setTimeout(typewriter,timeTimeoutString,json.nodes[j].id[i]);
+ }
+ */
+
+				var typeWriterEdges = function(edge) {
+					console.log(edge);
+					if(e == json.edges.length - 1) {
+						$timeout.cancel(timeoutEdges);
+						$scope.showParameters(false);
+						$scope.simulationRunning = true;
+						new Practice();
+						$scope.generateChart();
+						$timeout(function(){
+							Practice.runIntervalSimulation(2000).then(function(){
+								$scope.simulationRunning = false;
+							});
+						},500);
+						console.log("finito");
+					}
+					else {
+						var timeoutFrom,
+							timeoutTo,
+							timeoutTime;
+						var typeWriterFrom = function(char) {
+							console.log(char);
+							$scope.fromNew += char;
+							if(i == edge.value.from.length - 1 ) {
+								$timeout.cancel(timeoutFrom);
+								i = 0;
+
+								var typeWriterTo = function(char) {
+									console.log(char);
+									$scope.toNew += char;
+									if(i == edge.value.to.length - 1) {
+										$timeout.cancel(timeoutTo);
+										i = 0;
+
+										var typeWriterTime = function(actual, num) {
+											console.log(actual);
+											$scope.timeNew = actual;
+
+											if(actual == num) {
+												$timeout.cancel(typeWriterTime);
+												i = 0;
+												$scope.edgeTypeNew = edge.value.type;
+												$scope.addCommunication();
+
+												timeoutEdges = $timeout(function () {
+													typeWriterEdges(json.edges[++e]);
+												}, 800);
+
+											} else {
+												timeoutTime = $timeout(function(){
+													typeWriterTime(++actual, parseInt(edge.value.label));
+												},timeTimeoutValueCom);
+											}
+										};
+										typeWriterTime(0, parseInt(edge.value.label));
+									} else {
+										timeoutTo = $timeout(function(){
+											typeWriterTo(edge.value.to[++i]);
+										},timeTimeoutStringCom);
+									}
+								};
+								typeWriterTo(edge.value.to[i]);
+							} else {
+								timeoutFrom = $timeout(function(){
+									typeWriterFrom(edge.value.from[++i]);
+								},timeTimeoutStringCom);
+							}
+						}
+						typeWriterFrom(edge.value.from[i]);
+					}
+
+				};
+
+				var typewriterNodes = function(node) {
+					console.log(node);
+					if (j == json.nodes.length - 1) {
+						$timeout.cancel(timeoutNodes);
+						typeWriterEdges(json.edges[e]);
+					}
+					else {
+						var timeoutName,
+							timeoutDescr,
+							timeoutMem,
+							timeoutPMAL,
+							timeoutProvider;
+
+						console.log(node);
+						var typeWriterNodeName = function (char) {
+							console.log(char);
+							$scope.nameNew += char;
+
+							if (i == node.id.length - 1) {
+								$timeout.cancel(timeoutName);
+								i = 0;
+								// invoco timeout per descrizione
+								var typeWriterNodeDescr = function (char) {
+									console.log(char);
+									$scope.descrizioneNew += char;
+									if (i == node.value.descr.length - 1) {
+										$timeout.cancel(timeoutDescr);
+										i = 0;
+
+										var typeWriterMem = function (actual, num) {
+											console.log(actual);
+											$scope.memNew = actual;
+											if (actual == num) {
+												$timeout.cancel(timeoutMem);
+												i = 0;
+
+												var typeWriterPMAL = function (actual, num) {
+													console.log(actual);
+													$scope.maliciousProbabilityNew = actual;
+
+													if (actual == Number(num.toFixed(1))) {
+														$timeout.cancel(timeoutPMAL);
+														i = 0;
+
+														var typeWriterProvider = function (char) {
+															console.log(char);
+															$scope.providerNodeNew += char;
+															if (i == node.value.provider.length - 1) {
+																$timeout.cancel(timeoutProvider);
+																i = 0;
+																$scope.nodeTypeNew = node.value.type;
+																$scope.nodeFunctionNew = node.value.func;
+
+																$scope.addNode();
+
+																timeoutNodes = $timeout(function () {
+																	typewriterNodes(json.nodes[++j]);
+																}, 100);
+															}
+															else {
+																timeoutProvider = $timeout(function () {
+																	typeWriterProvider(node.value.provider[++i]);
+																}, timeTimeoutString);
+															}
+														}
+
+														typeWriterProvider(node.value.provider[i]);
+													}
+													else {
+														timeoutPMAL = $timeout(function () {
+															actual = actual + 0.1;
+															typeWriterPMAL(Number(actual.toFixed(1)), node.value.pmal);
+														}, timeTimeoutValue);
+
+													}
+												};
+												typeWriterPMAL(0, node.value.pmal);
+											}
+											else {
+												timeoutMem = $timeout(function () {
+													typeWriterMem(++actual, node.value.mem);
+												}, timeTimeoutValue);
+											}
+										};
+
+										typeWriterMem(0, node.value.mem);
+									} else {
+										timeoutDescr = $timeout(function () {
+											typeWriterNodeDescr(node.value.descr[++i]);
+										}, timeTimeoutString);
+									}
+								};
+
+								typeWriterNodeDescr(node.value.descr[i]);
+							} else {
+								timeoutName = $timeout(function () {
+									typeWriterNodeName(node.id[++i]);
+								}, timeTimeoutString);
+							}
+						};
+						typeWriterNodeName(node.id[i])
+						// put when other timeout was finished
+						//timeoutName = setTimeout(typeWriterNodeName, 5000, json.nodes[++j]);
+					}
+				};
+				typewriterNodes(json.nodes[j]);
 			}
-			else if(e.keyCode == 84 && ($scope.simulationRunning == true || $scope.simulationStepRunning == true)) { // key 't'
-				$scope.generateRuntimeTable();
-			}*/
 		});
 	};
 });

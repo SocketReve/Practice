@@ -59,6 +59,19 @@ body .dropdown-menu {
 .modalRuntimeTable sub {
   color: forestgreen;
 }
+.modalPowerSetCollusion input {
+  border-top: 1px solid #dddddd;
+  border-left: 1px solid #dddddd;
+  border-right: 1px solid #dddddd;
+  padding: 1px;
+  padding-left: 5px;
+}
+.modalPowerSetCollusion input:focus {
+  box-shadow: none;
+  border-color: none;
+  -webkit-box-shadow: none;
+  outline: 0;
+}
 .modalPowerSetCollusion .Collusion {
   color: red;
 }
@@ -354,10 +367,14 @@ body .dropdown-menu {
   stroke-width: 3px !important;
   stroke: #17cf00 !important;
 }
-#main #graphContainer #network svg .edgePath.SS,
-#main #graphContainer #network svg .edgePath.EN,
-#main #graphContainer #network svg .edgePath.GC {
+#main #graphContainer #network svg .edgePath.SS {
   stroke: #adad00;
+}
+#main #graphContainer #network svg .edgePath.EN {
+  stroke: #007eff;
+}
+#main #graphContainer #network svg .edgePath.GC {
+  stroke: #ff0005;
 }
 #main #graphContainer #simulationButtons {
   position: absolute;

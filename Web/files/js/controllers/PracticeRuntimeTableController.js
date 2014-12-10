@@ -2,9 +2,11 @@
  * Created by Luca Reverberi - socketreve (thereve@gmail.com) on 29/10/14.
  */
 
-angular.module("PracticeSimulator").controller("PracticeRuntimeTableController", function($scope, $modalInstance, runTimeNodePerInstantsTable, Practice){
+angular.module("PracticeSimulator").controller("PracticeRuntimeTableController", function($scope, $modalInstance, Practice){
 	$scope.trHeader = ['#'];
 	$scope.table =[];
+
+	var runTimeNodePerInstantsTable = Practice.getTableNodePerInstants();
 
 	for(var node in runTimeNodePerInstantsTable[0]) {
 		$scope.trHeader.push(node);

@@ -77,7 +77,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				PMAL: rawElements.nodes[i].value.pmal,
 				PROVIDER: rawElements.nodes[i].value.provider,
 				MEM: {
-					array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [{value: rawElements.nodes[i].value.mem, comType: "PT", shareIndex: 0}],
+					array: (rawElements.nodes[i].value.type == "COMP" || rawElements.nodes[i].value.type == "RES") ? [] : [{value: rawElements.nodes[i].value.mem, comType: "PT", shareIndex: 0, from: ""}],
 					value: rawElements.nodes[i].value.mem
 				},
 				FUNC: rawElements.nodes[i].value.func,
@@ -202,7 +202,7 @@ angular.module("PracticeSimulator").factory("Practice", function($q, $interval, 
 				if(!(mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] instanceof Array)) {
 					mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT] = [];
 				}
-				mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push({ value: nodes[instants[actualTimeSimulation][i].IN].MEM.value, comType: instants[actualTimeSimulation][i].COMTYPE, shareIndex: instants[actualTimeSimulation][i].SHARENUMBER});
+				mapArrayOfMemoriesOutput[instants[actualTimeSimulation][i].OUT].push({ value: nodes[instants[actualTimeSimulation][i].IN].MEM.value, comType: instants[actualTimeSimulation][i].COMTYPE, shareIndex: instants[actualTimeSimulation][i].SHARENUMBER, from: instants[actualTimeSimulation][i].IN});
 			}
 
 			// in questo ciclo for scandisco i vari nodi e, nel caso di nodo COMP, eseguo la funzione annessa.

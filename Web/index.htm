@@ -74,14 +74,14 @@
 								<ul class="dropdown-menu" role="menu">
 									<li role="presentation" class="dropdown-header">Node Type</li>
 									<li role="presentation" class="divider"></li>
-									<li role="presentation"><a ng-click="nodeTypeNew='IN'; nodeFunctionNew = null;" role="menuitem" href="#">IN</a></li>
+									<li role="presentation"><a ng-click="nodeTypeNew='IN'; nodeFunctionNew = '';" role="menuitem" href="#">IN</a></li>
 
 									<li role="presentation" class="divider"></li>
 									<li role="presentation" class="dropdown-header">COMP</li>
 									<li ng-repeat="func in funcOfCompNode" role="presentation"><a ng-click="$parent.nodeTypeNew='COMP'; $parent.memNew=0; $parent.nodeFunctionNew=func" role="menuitem" href="#">{{ func }}</a></li>
 									<li role="presentation" class="divider"></li>
 
-									<li role="presentation"><a ng-click="nodeTypeNew='RES'; nodeFunctionNew = null; memNew=0; " role="menuitem" href="#">RES</a></li>
+									<li role="presentation"><a ng-click="nodeTypeNew='RES'; nodeFunctionNew = ''; memNew=0; " role="menuitem" href="#">RES</a></li>
 								</ul>
 							</div>
 						</div>
@@ -201,7 +201,7 @@
 				</div>
 
 				<div ng-show="isGraphInitialized()" id="simulationStatistics">
-					<button type="button" ng-click="generatePowerSet()" class="btn btn-block btn-default"> Coalitions Risk Sets </button>
+					<button ng-show="simulationStepRunning" type="button" ng-click="generateChart()" class="btn btn-block btn-default"> Coalitions Risk Sets </button>
 					<button ng-show="simulationStepRunning" type="button" ng-click="generateRuntimeTable()" class="btn btn-block btn-default"> Simulation Table </button>
 					<button ng-show="simulationStepRunning" type="button" ng-click="generatePowerSetTable()" class="btn btn-block btn-default"> Collusion Power Set </button>
 				</div>

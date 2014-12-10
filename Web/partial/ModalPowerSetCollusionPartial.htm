@@ -5,6 +5,7 @@
 	<h3> Collusion Power Set </h3>
 </div>
 <div class="modal-body">
+	<input type="search" ng-model="searchNode" placeholder="Search Node">
 	<table class="table table-bordered table-hover table-condensed table-responsive">
 		<thead>
 		<tr>
@@ -12,7 +13,7 @@
 		</tr>
 		</thead>
 		<tbody>
-		<tr ng-repeat="row in table track by $index">
+		<tr ng-repeat="row in table | filter:searchNode track by $index">
 			<td ng-repeat="col in row track by $index" ng-class="{'Collusion': col.problem }">
 				<strong> <span  ng-bind-html="getArrayOfValue(col.values) | unsafe"></span> </strong>
 			</td>

@@ -3,9 +3,6 @@
  */
 
 angular.module("PracticeSimulator").controller("PracticeChartsController", function($scope, $modalInstance, $timeout, Practice, PracticeSETOperations){
-	if(!Practice.isInitialized()) {
-		new Practice();
-	}
 	var nodes = Practice.getNodes();
 	var nodesArray = [];
 	//$scope.table = [];
@@ -27,7 +24,17 @@ angular.module("PracticeSimulator").controller("PracticeChartsController", funct
 	}
 	*/
 
-	 var nodesRanking = [];
+/*	var mappaProb = {
+		2 : { // number of nodes aggregates
+			0.1: { prob
+				name
+			}
+		}
+	};*/
+
+	var mappaProb = {};
+
+	var nodesRanking = [];
 
 	// build array for d3 scatter visualization
 	for(var i = 0; i < powerSet.length-1; i++) { // -1 because I don't want to take empty object in power set
@@ -37,11 +44,32 @@ angular.module("PracticeSimulator").controller("PracticeChartsController", funct
 			name = name + ((name != "") ? "-" : "") + powerSet[i][j].ID;
 			prob = prob * powerSet[i][j].PMAL;
 		}
-		nodesRanking.push({
-			name: name,
-			y: prob,
-			x: powerSet[i].length
-		});
+
+		prob = prob.toFixed(3);
+
+		if(typeof mappaProb[powerSet[i].length] === "undefined") {
+			mappaProb[powerSet[i].length] = {};
+		}
+		if(typeof mappaProb[powerSet[i].length][prob] === "undefined") {
+			mappaProb[powerSet[i].length][prob] = "";
+		}
+
+		// aggregate same probability and same number of node in another node that has concat name
+		mappaProb[powerSet[i].length][prob] = (mappaProb[powerSet[i].length][prob] === "") ? name : (mappaProb[powerSet[i].length][prob] + " | " + name);
+	}
+
+
+
+	for (var number in mappaProb) {
+		for(var p in mappaProb[number]) {
+			if(mappaProb[number].hasOwnProperty(p)) {
+				nodesRanking.push({
+					name: mappaProb[number][p],
+					y: parseFloat(p),
+					x: parseInt(number)
+				});
+			}
+		}
 	}
 
 	// delay for animation in modal div

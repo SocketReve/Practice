@@ -2,7 +2,7 @@
  * Created by socketreve on 12/11/14.
  */
 
-angular.module("PracticeSimulator").controller("PracticePowerSetCollusionController", function($scope, $modalInstance, runTimeNodePerInstantsTable, PracticeSETOperations, Practice) {
+angular.module("PracticeSimulator").controller("PracticePowerSetCollusionController", function($scope, $modalInstance, PracticeSETOperations, Practice) {
 	$scope.trHeader = ["Nodes Coalitions"];
 	$scope.table =[];
 
@@ -21,7 +21,7 @@ angular.module("PracticeSimulator").controller("PracticePowerSetCollusionControl
 
 	powerSet = PracticeSETOperations.PowerSet(nodesArray);
 */
-
+	var runTimeNodePerInstantsTable = Practice.getTableNodePerInstants();
 
 	var nodi = [];
 
@@ -53,7 +53,6 @@ angular.module("PracticeSimulator").controller("PracticePowerSetCollusionControl
 	for(var i = 0; i < $scope.table.length; i++) {
 		for(var j = 1; j < $scope.trHeader.length; j++) { // j = 1 because
 			var test = checkCollusion($scope.table[i][0].values, j);
-			console.log(test);
 			$scope.table[i][j] = test;
 		}
 	}
@@ -66,8 +65,6 @@ angular.module("PracticeSimulator").controller("PracticePowerSetCollusionControl
 	}*/
 
 	function checkCollusion(arrayOfNodes, index) {
-		//console.log(arrayOfNodes);
-
 		index = index - 1; // because in table I have different index. index = instant
 
 		var valuesOfNodes = [];
@@ -77,7 +74,27 @@ angular.module("PracticeSimulator").controller("PracticePowerSetCollusionControl
 		}
 		//console.log(valuesOfNodes);
 
-		var countShare = [] ; // count share and relative value
+		// build map <from node, numberOfShares>
+		var secretSharePerNodesInSubset = {};
+		for(var i = 0; i < valuesOfNodes.length; i++) {
+			if(valuesOfNodes[i].comType == "SS") {
+				if (typeof secretSharePerNodesInSubset[valuesOfNodes[i].from] == "undefined") {
+					secretSharePerNodesInSubset[valuesOfNodes[i].from] = 1;
+				} else {
+					secretSharePerNodesInSubset[valuesOfNodes[i].from]++;
+				}
+			}
+		}
+
+		//console.log(secretSharePerNodesInSubset);
+
+		for (var actualNode in secretSharePerNodesInSubset) {
+			if (runTimeNodePerInstantsTable[index][actualNode].SHARES == secretSharePerNodesInSubset[actualNode]) {
+				return { problem: true, values: valuesOfNodes };
+			}
+		}
+
+/*		var countShare = [] ; // count share and relative value
 		for(var i = 0; i < valuesOfNodes.length; i++) {
 			if(valuesOfNodes[i].comType == "SS") { // Secret Share
 				if(typeof countShare[valuesOfNodes[i].value] == "undefined" || countShare[valuesOfNodes[i].value] == null) {
@@ -96,7 +113,7 @@ angular.module("PracticeSimulator").controller("PracticePowerSetCollusionControl
 					return {problem: true, values: valuesOfNodes};
 				}
 			}
-		}
+		}*/
 
 		return {problem: false, values: valuesOfNodes};
 	}
