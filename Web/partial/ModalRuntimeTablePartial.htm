@@ -12,9 +12,9 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="row in table track by $index">
-				<td> {{ $index }} </td>
-				<td ng-repeat="col in row"> <span ng-bind-html="getArrayOfValue(col.MEM.array) | unsafe"></span> | {{ col.MEM.value }} </td>
+			<tr ng-repeat="row in ::table track by $index">
+				<td> {{ ::$index }} </td>
+				<td ng-repeat="col in row"> <span ng-bind-html="getArrayOfValue(col.MEM.array)"></span> | {{ ::col.MEM.value }} </td>
 			</tr>
 		</tbody>
 	</table>

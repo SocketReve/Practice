@@ -2,7 +2,7 @@
  * Created by Luca Reverberi - socketreve (thereve@gmail.com) on 29/10/14.
  */
 
-angular.module("PracticeSimulator").controller("PracticeRuntimeTableController", function($scope, $modalInstance, Practice){
+angular.module("PracticeSimulator").controller("PracticeRuntimeTableController", function($scope, $sce, $modalInstance, Practice){
 	$scope.trHeader = ['#'];
 	$scope.table =[];
 
@@ -20,7 +20,7 @@ angular.module("PracticeSimulator").controller("PracticeRuntimeTableController",
 	}
 
 	$scope.getArrayOfValue = function(array) {
-		return Practice.compileMemoryToString(array);
+		return $sce.trustAsHtml(Practice.compileMemoryToString(array));
 	};
 
 	//$scope.table = runTimeNodePerInstantsTable;

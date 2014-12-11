@@ -2,7 +2,7 @@
  * Created by Luca Reverberi - socketreve (thereve@gmail.com) on 03/10/14.
  */
 
-angular.module("PracticeSimulator").controller("PracticeMainController", function($scope, $modal, $interval, $timeout, $q, Graph2, Practice, PracticeCOMPFunctions, PracticeShapley){
+angular.module("PracticeSimulator").controller("PracticeMainController", function($scope, $modal, $interval, $timeout, $q, $modalStack, Graph2, Practice, PracticeCOMPFunctions, PracticeShapley){ // TODO remove modalStack
 	// init scope var
 	$scope.nameNew = "";
 	$scope.descrizioneNew = "";
@@ -468,7 +468,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "fornitore di asfalto",
 							"type": "IN",
-							"provider": "-",
+							"provider": "TELECOM",
 							"mem": 100,
 							"pmal": 0.8,
 							"calculatedRisk": "0.0",
@@ -480,7 +480,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "fornitore di attrezzi",
 							"type": "IN",
-							"provider": "-",
+							"provider": "TELECOM",
 							"mem": 50,
 							"pmal": 0.8,
 							"calculatedRisk": "0.0",
@@ -492,7 +492,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "fornitore di macchine utensili",
 							"type": "IN",
-							"provider": "-",
+							"provider": "NGI",
 							"mem": 20,
 							"pmal": 0.9,
 							"calculatedRisk": "0.0",
@@ -504,7 +504,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "fornitore di asfalto",
 							"type": "IN",
-							"provider": "-",
+							"provider": "TELECOM",
 							"mem": 95,
 							"pmal": 0.7,
 							"func": "",
@@ -517,7 +517,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "fornitore di attrezzi",
 							"type": "IN",
-							"provider": "-",
+							"provider": "NGI",
 							"mem": 40,
 							"pmal": 0.6,
 							"calculatedRisk": "0.0",
@@ -529,7 +529,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "fornitore di macchine utensili",
 							"type": "IN",
-							"provider": "-",
+							"provider": "FASTWEB",
 							"mem": 45,
 							"pmal": 0.6,
 							"calculatedRisk": "0.0",
@@ -541,7 +541,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "primo offerente - 1",
 							"type": "COMP",
-							"provider": "-",
+							"provider": "FASTWEB",
 							"mem": 0,
 							"pmal": 0.4,
 							"func": "SUM",
@@ -554,7 +554,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "primo offerente - 2",
 							"type": "COMP",
-							"provider": "-",
+							"provider": "AWS",
 							"mem": 0,
 							"pmal": 0.4,
 							"func": "SUM",
@@ -567,7 +567,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "secondo offerente - 1",
 							"type": "COMP",
-							"provider": "-",
+							"provider": "AWS",
 							"mem": 0,
 							"pmal": 0.3,
 							"func": "SUM",
@@ -580,7 +580,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "secondo offerente - 2",
 							"type": "COMP",
-							"provider": "-",
+							"provider": "AWS",
 							"mem": 0,
 							"pmal": 0.3,
 							"func": "SUM",
@@ -619,7 +619,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "ente appaltante",
 							"type": "COMP",
-							"provider": "-",
+							"provider": "AWS",
 							"mem": 0,
 							"pmal": 0.1,
 							"func": "MIN",
@@ -632,7 +632,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 						"value": {
 							"descr": "agente",
 							"type": "RES",
-							"provider": "-",
+							"provider": "AWS",
 							"mem": 0,
 							"pmal": 0.1,
 							"func": null,
@@ -860,17 +860,45 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 
 				var typeWriterEdges = function(edge) {
 					console.log(edge);
-					if(e == json.edges.length - 1) {
+					if(e == json.edges.length) {
 						$timeout.cancel(timeoutEdges);
 						$scope.showParameters(false);
-						$scope.simulationRunning = true;
-						new Practice();
-						$scope.generateChart();
-						$timeout(function(){
-							Practice.runIntervalSimulation(2000).then(function(){
-								$scope.simulationRunning = false;
-							});
-						},500);
+
+						$scope.checkGraph();
+
+						$timeout(function() {
+							new Practice();
+							$scope.generateChart();
+
+							$timeout(function(){
+								$modalStack.dismissAll();
+								Practice.runStepSimulation();
+								$scope.simulationStepRunning = true;
+
+								$timeout(function(){
+									$scope.generateRuntimeTable()
+									$timeout(function() {
+										$modalStack.dismissAll();
+									},2000);
+								},1000);
+
+								var intervalSteps = $interval(function() {
+									if(Practice.simulationStep()  == false) {
+										$scope.simulationStepRunning = false;
+										$interval.cancel(intervalSteps);
+									} else {
+										$timeout(function() {
+											$scope.generateRuntimeTable()
+											$timeout(function() {
+												$modalStack.dismissAll();
+											},2000);
+										},1000);
+									}
+								},3500);
+							},4000);
+						},1500);
+
+
 						console.log("finito");
 					}
 					else {
@@ -903,7 +931,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 
 												timeoutEdges = $timeout(function () {
 													typeWriterEdges(json.edges[++e]);
-												}, 800);
+												}, 600);
 
 											} else {
 												timeoutTime = $timeout(function(){
@@ -924,7 +952,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 									typeWriterFrom(edge.value.from[++i]);
 								},timeTimeoutStringCom);
 							}
-						}
+						};
 						typeWriterFrom(edge.value.from[i]);
 					}
 
@@ -932,7 +960,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 
 				var typewriterNodes = function(node) {
 					console.log(node);
-					if (j == json.nodes.length - 1) {
+					if (j == json.nodes.length) {
 						$timeout.cancel(timeoutNodes);
 						typeWriterEdges(json.edges[e]);
 					}

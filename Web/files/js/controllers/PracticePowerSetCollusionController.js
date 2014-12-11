@@ -2,7 +2,7 @@
  * Created by socketreve on 12/11/14.
  */
 
-angular.module("PracticeSimulator").controller("PracticePowerSetCollusionController", function($scope, $modalInstance, PracticeSETOperations, Practice) {
+angular.module("PracticeSimulator").controller("PracticePowerSetCollusionController", function($scope, $sce, $modalInstance, DTDefaultOptions, PracticeSETOperations, Practice) {
 	$scope.trHeader = ["Nodes Coalitions"];
 	$scope.table =[];
 
@@ -21,6 +21,8 @@ angular.module("PracticeSimulator").controller("PracticePowerSetCollusionControl
 
 	powerSet = PracticeSETOperations.PowerSet(nodesArray);
 */
+	DTDefaultOptions.setDisplayLength(50);
+
 	var runTimeNodePerInstantsTable = Practice.getTableNodePerInstants();
 
 	var nodi = [];
@@ -124,6 +126,6 @@ angular.module("PracticeSimulator").controller("PracticePowerSetCollusionControl
 	};
 
 	$scope.getArrayOfValue = function(array) {
-		return Practice.compileMemoryToString(array);
+		return $sce.trustAsHtml(Practice.compileMemoryToString(array));
 	};
 });
