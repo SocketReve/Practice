@@ -36,30 +36,30 @@
 					<h4> Info </h4>
 
 					<div class="form-group">
-						<label for="nameInput" class="control-label col-lg-2 col-md-2"> Name: </label>
+						<label for="nameInput" class="control-label col-lg-2 col-md-2 col-sm-2"> Name: </label>
 
-						<div class="col-lg-10">
+						<div class="col-lg-10 col-md-10">
 							<input required ng-model="nameNew" type="text" class="form-control" id="nameInput" placeholder="Name">
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="descrizioneInput" class="control-label col-lg-2 col-md-2"> Descr: </label>
+						<label for="descrizioneInput" class="control-label col-lg-2 col-md-2 col-sm-2"> Descr: </label>
 
-						<div class="col-lg-10">
+						<div class="col-lg-10 col-md-10">
 							<input required ng-model="descrizioneNew" type="text" class="form-control" id="descrizioneInput" placeholder="Descrizione del nodo">
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="memInput" class="control-label col-lg-2 col-md-2"> Mem: </label>
+						<label for="memInput" class="control-label col-lg-2 col-md-2 col-sm-2"> Mem: </label>
 
-						<div class="col-lg-10">
+						<div class="col-lg-10 col-md-10">
 							<input ng-disabled="(nodeTypeNew != 'IN')" required ng-model="memNew" type="number" class="form-control" id="memInput" placeholder="Memoria del nodo istante 0">
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="maliciousProbabilityInput" class="control-label col-lg-2 col-md-2"> PMAL: </label>
+						<label for="maliciousProbabilityInput" class="control-label col-lg-2 col-md-2 col-sm-2"> PMAL: </label>
 
-						<div class="col-lg-10">
+						<div class="col-lg-10 col-md-10">
 							<input required ng-model="maliciousProbabilityNew" type="number" step="0.1" min="0" max="1" class="form-control" id="maliciousProbabilityInput" placeholder="Node Malicious Probability">
 						</div>
 					</div>
@@ -105,8 +105,8 @@
 
 					<h4> Provider </h4>
 					<div class="form-group">
-						<label for="providerNodeNew" class="control-label col-lg-2 col-md-2"> Provider: </label>
-						<div class="col-lg-10">
+						<label for="providerNodeNew" class="control-label col-lg-2 col-md-2 col-sm-2"> Provider: </label>
+						<div class="col-lg-10 col-md-10">
 							<input required ng-model="providerNodeNew" type="text" class="form-control" id="providerNodeNew" placeholder="Name">
 						</div>
 					</div>
@@ -126,22 +126,22 @@
 				<form ng-submit="addCommunication()" class="form-horizontal" role="form">
 
 					<div class="form-group">
-						<label for="fromInput" class="control-label col-lg-2 col-md-2"> From: </label>
-						<div class="col-lg-10">
+						<label for="fromInput" class="control-label col-lg-2 col-md-2 col-sm-2"> From: </label>
+						<div class="col-lg-10 col-md-10">
 							<input required ng-model="fromNew" type="text" class="form-control" id="fromInput" placeholder="From">
 						</div>
 					</div>
 
 					<div class="form-group">
-						<label for="toInput" class="control-label col-lg-2 col-md-2"> To: </label>
-						<div class="col-lg-10">
+						<label for="toInput" class="control-label col-lg-2 col-md-2 col-sm-2"> To: </label>
+						<div class="col-lg-10 col-md-10">
 							<input required ng-model="toNew" type="text" class="form-control" id="toInput" placeholder="To">
 						</div>
 					</div>
 
 					<div class="form-group">
-						<label for="timeInput" class="control-label col-lg-2 col-md-2"> Time: </label>
-						<div class="col-lg-10">
+						<label for="timeInput" class="control-label col-lg-2 col-md-2 col-sm-2"> Time: </label>
+						<div class="col-lg-10 col-md-10">
 							<input required ng-model="timeNew" type="number" min="0" class="form-control" id="timeInput" placeholder="Time instant">
 						</div>
 					</div>

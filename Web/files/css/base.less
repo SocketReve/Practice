@@ -97,11 +97,11 @@ body {
 	.dataTables_length {
 		float: right;
 	}
-	
+
 	.dataTable_filters {
 		float: left;
 	}
-	
+
 	.dataTables_paginate {
 		a {
 			padding-right: 6px;
@@ -109,8 +109,18 @@ body {
 		}
 	}
 
-	.Collusion {
-		color: red;
+	table {
+		table-layout:fixed;
+		width:100%;
+		tbody {
+			td {
+				font-weight: bold;
+				overflow-x: auto;
+				.Collusion {
+					color: red;
+				}
+			}
+		}
 	}
 }
 
@@ -438,6 +448,7 @@ body {
 					stroke: #696969;
 					fill: none;
 					transition: stroke 0.7s;
+					stroke-width: 2px;
 
 					&.green {
 						stroke-width: 3px !important;

@@ -60,6 +60,7 @@ body .dropdown-menu {
   color: forestgreen;
 }
 .modalPowerSetCollusion input {
+  margin-left: 5px;
   border-top: 1px solid #dddddd;
   border-left: 1px solid #dddddd;
   border-right: 1px solid #dddddd;
@@ -72,7 +73,25 @@ body .dropdown-menu {
   -webkit-box-shadow: none;
   outline: 0;
 }
-.modalPowerSetCollusion .Collusion {
+.modalPowerSetCollusion .dataTables_length {
+  float: right;
+}
+.modalPowerSetCollusion .dataTable_filters {
+  float: left;
+}
+.modalPowerSetCollusion .dataTables_paginate a {
+  padding-right: 6px;
+  cursor: pointer;
+}
+.modalPowerSetCollusion table {
+  table-layout: fixed;
+  width: 100%;
+}
+.modalPowerSetCollusion table tbody td {
+  font-weight: bold;
+  overflow-x: auto;
+}
+.modalPowerSetCollusion table tbody td .Collusion {
   color: red;
 }
 #main {
@@ -362,6 +381,7 @@ body .dropdown-menu {
   stroke: #696969;
   fill: none;
   transition: stroke 0.7s;
+  stroke-width: 2px;
 }
 #main #graphContainer #network svg .edgePath.green {
   stroke-width: 3px !important;

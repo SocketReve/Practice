@@ -454,7 +454,6 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 		// bind escape key for remove modifier div
 		angular.element(document).off("keydown"); // rebind
 		angular.element(document).on("keydown", function(e){
-			console.log(e);
 			if(e.keyCode == 27) {
 				$scope.showParameters(false);
 				$scope.showModifier(false);
@@ -462,7 +461,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 			else if(e.keyCode == 73 && e.metaKey) { // key cmd+'i' == thesis simulator
 				$scope.showParameters(true);
 
-				var json = {
+				/*var json = {
 					"nodes": [{
 						"id": "I1",
 						"value": {
@@ -832,15 +831,231 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 							"shareNumber": 0
 						}
 					}]
+				};*/
+
+				var json = {
+					"nodes": [{
+						"id": "I1",
+						"value": {
+							"descr": "fornitore di asfalto",
+							"type": "IN",
+							"provider": "TELECOM",
+							"mem": 100,
+							"pmal": 0.8,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "I2",
+						"value": {
+							"descr": "fornitore di attrezzi",
+							"type": "IN",
+							"provider": "TELECOM",
+							"mem": 50,
+							"pmal": 0.8,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "I3",
+						"value": {
+							"descr": "fornitore di macchine utensili",
+							"type": "IN",
+							"provider": "NGI",
+							"mem": 20,
+							"pmal": 0.9,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "I4",
+						"value": {
+							"descr": "fornitore di asfalto",
+							"type": "IN",
+							"provider": "TELECOM",
+							"mem": 95,
+							"pmal": 0.7,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "I5",
+						"value": {
+							"descr": "fornitore di attrezzi",
+							"type": "IN",
+							"provider": "NGI",
+							"mem": 40,
+							"pmal": 0.6,
+							"func": "",
+							"calculatedRisk": "0.0",
+							"highlight": false
+						}
+					}, {
+						"id": "I6",
+						"value": {
+							"descr": "fornitore di macchine utensili",
+							"type": "IN",
+							"provider": "FASTWEB",
+							"mem": 45,
+							"pmal": 0.6,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "C1",
+						"value": {
+							"descr": "primo offerente",
+							"type": "COMP",
+							"provider": "AWS",
+							"mem": 0,
+							"pmal": 0.4,
+							"func": "SUM",
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "C2",
+						"value": {
+							"descr": "secondo offerente",
+							"type": "COMP",
+							"provider": "AWS",
+							"mem": 0,
+							"pmal": 0.4,
+							"func": "SUM",
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "C3",
+						"value": {
+							"descr": "ente appaltante",
+							"type": "COMP",
+							"provider": "AWS",
+							"mem": 0,
+							"pmal": 0.1,
+							"func": "MIN",
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}, {
+						"id": "R1",
+						"value": {
+							"descr": "agente",
+							"type": "RES",
+							"provider": "AWS",
+							"mem": 0,
+							"pmal": 0.1,
+							"func": null,
+							"calculatedRisk": "0.0",
+							"highlight": false,
+							"shares": 0
+						}
+					}],
+					"edges": [{
+						"id": "I1-C1-0-0",
+						"value": {
+							"label": "0",
+							"from": "I1",
+							"to": "C1",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "I2-C1-0-0",
+						"value": {
+							"label": "0",
+							"from": "I2",
+							"to": "C1",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "I3-C1-0-0",
+						"value": {
+							"label": "0",
+							"from": "I3",
+							"to": "C1",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "I5-C2-0-0",
+						"value": {
+							"label": "0",
+							"from": "I5",
+							"to": "C2",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					},  {
+						"id": "I4-C2-0-0",
+						"value": {
+							"label": "0",
+							"from": "I4",
+							"to": "C2",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					},  {
+						"id": "I6-C2-0-0",
+						"value": {
+							"label": "0",
+							"from": "I6",
+							"to": "C2",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "C1-C3-1-0",
+						"value": {
+							"label": "1",
+							"from": "C1",
+							"to": "C3",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "C2-C3-1-0",
+						"value": {
+							"label": "1",
+							"from": "C2",
+							"to": "C3",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}, {
+						"id": "C3-R1-2-0",
+						"value": {
+							"label": "2",
+							"from": "C3",
+							"to": "R1",
+							"type": "PT",
+							"highlight": false,
+							"shareNumber": 0
+						}
+					}]
 				};
 
-				var i = 0, j = 0, e = 0;
+				var i = 0, j = 0, m = 0;
 				var timeTimeoutString = 50,
-					timeTimeoutValue = 30,
 					timeTimeoutStringCom = 100,
-					timeTimeoutValueCom = 1000;
-				var timeoutNodes, timeoutEdges;
-
+					timeTimeoutValueCom = 300;
 /*
 				var typewriter = function(char) {
 					$scope.nameNew += char;
@@ -857,11 +1072,11 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				setTimeout(typewriter,timeTimeoutString,json.nodes[j].id[i]);
  }
  */
+				var intervalSim;
 
 				var typeWriterEdges = function(edge) {
 					console.log(edge);
-					if(e == json.edges.length) {
-						$timeout.cancel(timeoutEdges);
+					if(m == json.edges.length) {
 						$scope.showParameters(false);
 
 						$scope.checkGraph();
@@ -882,13 +1097,19 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 									},2000);
 								},1000);
 
-								var intervalSteps = $interval(function() {
+								intervalSim = $interval(function() {
 									if(Practice.simulationStep()  == false) {
-										$scope.simulationStepRunning = false;
-										$interval.cancel(intervalSteps);
+										$timeout(function(){
+											$scope.simulationStepRunning = false;
+											$interval.cancel(intervalSim);
+											$scope.generatePowerSetTable();
+											$timeout(function() {
+												$modalStack.dismissAll();
+											}, 6000);
+										},1000);
 									} else {
 										$timeout(function() {
-											$scope.generateRuntimeTable()
+											$scope.generateRuntimeTable();
 											$timeout(function() {
 												$modalStack.dismissAll();
 											},2000);
@@ -896,27 +1117,22 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 									}
 								},3500);
 							},4000);
-						},1500);
+						},2500);
 
 
 						console.log("finito");
 					}
 					else {
-						var timeoutFrom,
-							timeoutTo,
-							timeoutTime;
 						var typeWriterFrom = function(char) {
 							console.log(char);
 							$scope.fromNew += char;
 							if(i == edge.value.from.length - 1 ) {
-								$timeout.cancel(timeoutFrom);
 								i = 0;
 
 								var typeWriterTo = function(char) {
 									console.log(char);
 									$scope.toNew += char;
 									if(i == edge.value.to.length - 1) {
-										$timeout.cancel(timeoutTo);
 										i = 0;
 
 										var typeWriterTime = function(actual, num) {
@@ -924,31 +1140,30 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 											$scope.timeNew = actual;
 
 											if(actual == num) {
-												$timeout.cancel(typeWriterTime);
 												i = 0;
 												$scope.edgeTypeNew = edge.value.type;
 												$scope.addCommunication();
 
-												timeoutEdges = $timeout(function () {
-													typeWriterEdges(json.edges[++e]);
+												$timeout(function () {
+													typeWriterEdges(json.edges[++m]);
 												}, 600);
 
 											} else {
-												timeoutTime = $timeout(function(){
+												$timeout(function(){
 													typeWriterTime(++actual, parseInt(edge.value.label));
 												},timeTimeoutValueCom);
 											}
 										};
 										typeWriterTime(0, parseInt(edge.value.label));
 									} else {
-										timeoutTo = $timeout(function(){
+										$timeout(function(){
 											typeWriterTo(edge.value.to[++i]);
 										},timeTimeoutStringCom);
 									}
 								};
 								typeWriterTo(edge.value.to[i]);
 							} else {
-								timeoutFrom = $timeout(function(){
+								$timeout(function(){
 									typeWriterFrom(edge.value.from[++i]);
 								},timeTimeoutStringCom);
 							}
@@ -961,32 +1176,47 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 				var typewriterNodes = function(node) {
 					console.log(node);
 					if (j == json.nodes.length) {
-						$timeout.cancel(timeoutNodes);
-						typeWriterEdges(json.edges[e]);
+						typeWriterEdges(json.edges[m]);
 					}
 					else {
-						var timeoutName,
-							timeoutDescr,
-							timeoutMem,
-							timeoutPMAL,
-							timeoutProvider;
-
 						console.log(node);
 						var typeWriterNodeName = function (char) {
 							console.log(char);
 							$scope.nameNew += char;
 
 							if (i == node.id.length - 1) {
-								$timeout.cancel(timeoutName);
 								i = 0;
 								// invoco timeout per descrizione
 								var typeWriterNodeDescr = function (char) {
 									console.log(char);
 									$scope.descrizioneNew += char;
 									if (i == node.value.descr.length - 1) {
-										$timeout.cancel(timeoutDescr);
 										i = 0;
 
+										var typeWriterProvider = function (char) {
+											console.log(char);
+											$scope.providerNodeNew += char;
+											if (i == node.value.provider.length - 1) {
+												i = 0;
+												$scope.memNew = node.value.mem;
+												$scope.maliciousProbabilityNew = node.value.pmal;
+												$scope.nodeTypeNew = node.value.type;
+												$scope.nodeFunctionNew = node.value.func;
+
+												$timeout(function() {
+													$scope.addNode();
+													$timeout(function(){
+														typewriterNodes(json.nodes[++j]);
+													},100);
+												},400);
+											}
+											else {
+												$timeout(function () {
+													typeWriterProvider(node.value.provider[++i]);
+												}, timeTimeoutString);
+											}
+										}
+/*
 										var typeWriterMem = function (actual, num) {
 											console.log(actual);
 											$scope.memNew = actual;
@@ -1044,8 +1274,10 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 										};
 
 										typeWriterMem(0, node.value.mem);
+*/
+									typeWriterProvider(node.value.provider[i]);
 									} else {
-										timeoutDescr = $timeout(function () {
+										$timeout(function () {
 											typeWriterNodeDescr(node.value.descr[++i]);
 										}, timeTimeoutString);
 									}
@@ -1053,7 +1285,7 @@ angular.module("PracticeSimulator").controller("PracticeMainController", functio
 
 								typeWriterNodeDescr(node.value.descr[i]);
 							} else {
-								timeoutName = $timeout(function () {
+								$timeout(function () {
 									typeWriterNodeName(node.id[++i]);
 								}, timeTimeoutString);
 							}
